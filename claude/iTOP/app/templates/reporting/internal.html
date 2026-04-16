@@ -168,6 +168,7 @@
       <table class="table table-sm table-hover mb-0">
         <thead class="table-light">
           <tr>
+            <th>ID</th>
             <th>Datum</th>
             <th>Technik</th>
             <th>Zákazník</th>
@@ -182,6 +183,7 @@
         <tbody>
           {% for wl in worklogs %}
           <tr>
+            <td class="small text-muted text-nowrap">{{ wl.id }}</td>
             <td class="text-nowrap small">{{ wl.start_date[:10] }}</td>
             <td class="small">{{ wl.agent }}</td>
             <td class="small">{{ wl.org }}</td>

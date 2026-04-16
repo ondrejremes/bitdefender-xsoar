@@ -95,6 +95,7 @@
     <table class="table table-sm mb-0 mt-1">
       <thead>
         <tr>
+          <th class="text-muted" style="font-size:.7rem; width:50px">ID</th>
           <th class="text-muted" style="font-size:.7rem; width:90px">Datum</th>
           <th class="text-muted" style="font-size:.7rem;">Technik</th>
           <th class="text-muted" style="font-size:.7rem;">Popis činnosti</th>
@@ -105,6 +106,7 @@
       <tbody>
         {% for wl in wo.worklogs %}
         <tr>
+          <td class="small text-muted text-nowrap">{{ wl.id }}</td>
           <td class="small text-nowrap">{{ wl.start_date[:10] }}</td>
           <td class="small text-nowrap">{{ wl.agent }}</td>
           <td class="small text-muted" style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
