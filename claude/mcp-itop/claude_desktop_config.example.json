@@ -1,0 +1,22 @@
+{
+  "_comment_A": "Varianta A: lokální stdio (bez Dockeru)",
+  "_mcpServers_stdio": {
+    "itop": {
+      "command": "python3",
+      "args": ["-m", "mcp_itop.server"],
+      "cwd": "/path/to/mcp-itop",
+      "env": {
+        "ITOP_URL": "https://itop.example.com",
+        "ITOP_AUTH_TOKEN": "sem_vloz_svuj_token",
+        "PYTHONPATH": "/path/to/mcp-itop/src"
+      }
+    }
+  },
+
+  "_comment_B": "Varianta B: Docker + Traefik (SSE transport)",
+  "mcpServers": {
+    "itop": {
+      "url": "http://mcp-itop.localhost/sse"
+    }
+  }
+}

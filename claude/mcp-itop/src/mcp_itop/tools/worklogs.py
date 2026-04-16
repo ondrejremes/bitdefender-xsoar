@@ -1,0 +1,95 @@
+"""Nástroje pro vykazování práce (WorkLogs)."""
+from datetime import date, datetime
+from mcp_itop.itop_client import core_get, core_create
+
+
+async def get_worklogs(
+    date_from: str | None = None,
+    date_to: str | None = None,
+    technician: str | None = None,
+    customer_name: str | None = None,
+) -> list[dict]:
+    """
+    Vrátí WorkLogy za zadané období.
+
+    Parametry:
+        date_from: datum od ve formátu YYYY-MM-DD (výchozí: začátek aktuálního měsíce)
+        date_to:   datum do ve formátu YYYY-MM-DD (výchozí: dnes)
+        technician: část jména technika (volitelné)
+        customer_name: část názvu zákazníka (volitelné)
+    """
+    if not date_from:
+        today = date.today()
+        date_from = today.replace(day=1).isoformat()
+    if not date_to:
+        date_to = date.today().isoformat()
+
+    filters = [f"wl.date >= '{date_from}'", f"wl.date <= '{date_to} 23:59:59'"]
+
+    joins = (
+        "SELECT WorkLog AS wl "
+        "JOIN WorkOrder AS wo ON wl.workorder_id = wo.id "
+        "JOIN UserRequest AS ur ON wo.request_id = ur.id "
+        "JOIN Organization AS o ON ur.org_id = o.id "
+        "JOIN Person AS p ON wl.agent_id = p.id"
+    )
+
+    if technician:
+        filters.append(f"p.name LIKE '%{technician}%'")
+    if customer_name:
+        filters.append(f"o.name LIKE '%{customer_name}%'")
+
+    where = " AND ".join(filters)
+    oql = f"{joins} WHERE {where}"
+
+    logs = await core_get(
+        "WorkLog",
+        oql,
+        output_fields="date,agent_id_friendlyname,workorder_id_friendlyname,description,duration",
+    )
+
+    # Přidáme odvozené pole pro přehlednost
+    for log in logs:
+        duration_sec = int(log.get("duration") or 0)
+        log["duration_hours"] = round(duration_sec / 3600, 2)
+
+    return sorted(logs, key=lambda l: l.get("date", ""))
+
+
+async def get_my_worklogs_today(technician: str) -> list[dict]:
+    """Vrátí dnešní výkazy daného technika."""
+    today = date.today().isoformat()
+    return await get_worklogs(date_from=today, date_to=today, technician=technician)
+
+
+async def log_work(
+    workorder_id: int,
+    duration_minutes: int,
+    description: str,
+    log_date: str | None = None,
+) -> dict:
+    """
+    Vytvoří nový WorkLog na zadaný WorkOrder.
+
+    Parametry:
+        workorder_id:      ID WorkOrdu (číslo)
+        duration_minutes:  trvání v minutách
+        description:       popis vykonané práce
+        log_date:          datum výkazu YYYY-MM-DD (výchozí: dnes)
+    """
+    if not log_date:
+        log_date = date.today().isoformat()
+
+    # iTOP ukládá duration v sekundách
+    duration_seconds = duration_minutes * 60
+
+    fields = {
+        "workorder_id": workorder_id,
+        "description": description,
+        "duration": duration_seconds,
+        "date": f"{log_date} 08:00:00",
+    }
+
+    result = await core_create("WorkLog", fields)
+    result["duration_hours"] = round(duration_seconds / 3600, 2)
+    return result
