@@ -221,7 +221,12 @@ def main():
     if mode == "sse":
         _run_sse()
     else:
-        asyncio.run(stdio_server(app))
+        asyncio.run(_run_stdio())
+
+
+async def _run_stdio():
+    async with stdio_server() as (read_stream, write_stream):
+        await app.run(read_stream, write_stream, app.create_initialization_options())
 
 
 def _run_sse():
