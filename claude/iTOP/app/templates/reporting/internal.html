@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% block title %}Interní reporting{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h4 class="mb-0 fw-bold">Interní reporting</h4>
+    <form id="filterForm" class="d-flex gap-2 align-items-center flex-wrap" method="get">
+      <input type="date" id="date_from" class="form-control form-control-sm" name="date_from" value="{{ date_from }}">
+      <span class="text-muted">–</span>
+      <input type="date" id="date_to" class="form-control form-control-sm" name="date_to" value="{{ date_to }}">
+      <select id="agent_select" class="form-select form-select-sm" name="agent" style="min-width:160px;">
+        <option value="">Všichni technici</option>
+        {% for a in agents %}
+        <option value="{{ a }}" {% if agent_filter == a %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-sm btn-primary" type="submit">
+        <i class="bi bi-funnel"></i> Filtrovat
+      </button>
+    </form>
+  </div>
+  <!-- Quick period + export -->
+  <div class="d-flex gap-2 justify-content-between flex-wrap">
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-secondary" onclick="setPreset('this_week')">Tento týden</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="setPreset('last_week')">Minulý týden</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="setPreset('this_month')">Tento měsíc</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="setPreset('last_month')">Minulý měsíc</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="setPreset('ytd')">Od začátku roku</button>
+    </div>
+    <div class="d-flex gap-2">
+      <a id="exportXls" href="#" class="btn btn-sm btn-outline-success">
+        <i class="bi bi-file-earmark-excel"></i> Export XLS
+      </a>
+      <a id="exportPdf" href="#" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Summary cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Celkem hodin</div>
+      <div class="fs-3 fw-bold">{{ total_h }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Fakturovatelné hodiny</div>
+      <div class="fs-3 fw-bold text-success">{{ total_billable_h }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Nefakturovatelné hodiny</div>
+      <div class="fs-3 fw-bold text-danger">{{ (total_h - total_billable_h) | round(2) }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card p-3">
+      <div class="text-muted small">Počet záznamů</div>
+      <div class="fs-3 fw-bold">{{ worklogs | length }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <!-- By agent -->
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-header bg-white fw-semibold border-0 pt-3">
+        <i class="bi bi-person-lines-fill me-1"></i> Podle technika
+      </div>
+      <div class="card-body pt-1">
+        <table class="table table-sm table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Technik</th>
+              <th class="text-end">Hodiny</th>
+              <th class="text-end">Faktur.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in by_agent %}
+            <tr>
+              <td>{{ row.agent }}</td>
+              <td class="text-end fw-semibold">{{ row.hours }}</td>
+              <td class="text-end text-success">{{ row.hours_billable }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- By contract -->
+  <div class="col-md-5">
+    <div class="card h-100">
+      <div class="card-header bg-white fw-semibold border-0 pt-3">
+        <i class="bi bi-file-earmark-text me-1"></i> Podle kontraktu / zákazníka
+      </div>
+      <div class="card-body pt-1">
+        <table class="table table-sm table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Kontrakt</th>
+              <th>Zákazník</th>
+              <th class="text-end">Hodiny</th>
+              <th class="text-end">Faktur.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in by_contract %}
+            <tr>
+              <td class="small">{{ row.contract }}</td>
+              <td class="small text-muted">{{ row.org }}</td>
+              <td class="text-end fw-semibold">{{ row.hours }}</td>
+              <td class="text-end text-success">{{ row.hours_billable }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- By workorder type -->
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-header bg-white fw-semibold border-0 pt-3">
+        <i class="bi bi-list-task me-1"></i> Podle typu práce
+      </div>
+      <div class="card-body pt-1">
+        <table class="table table-sm table-hover mb-0">
+          <thead>
+            <tr>
+              <th>WorkOrder</th>
+              <th class="text-end">Hod.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in by_workorder %}
+            <tr>
+              <td class="small">{{ row.workorder }}</td>
+              <td class="text-end fw-semibold">{{ row.hours }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail table -->
+<div class="card">
+  <div class="card-header bg-white fw-semibold border-0 pt-3 d-flex justify-content-between">
+    <span><i class="bi bi-table me-1"></i> Detail záznamů</span>
+    <span class="text-muted small">{{ worklogs | length }} záznamů</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Datum</th>
+            <th>Technik</th>
+            <th>Zákazník</th>
+            <th>Kontrakt</th>
+            <th>WorkOrder</th>
+            <th>Ticket</th>
+            <th>Popis</th>
+            <th class="text-end">Hod.</th>
+            <th class="text-center">Faktur.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for wl in worklogs %}
+          <tr>
+            <td class="text-nowrap small">{{ wl.start_date[:10] }}</td>
+            <td class="small">{{ wl.agent }}</td>
+            <td class="small">{{ wl.org }}</td>
+            <td class="small">{{ wl.contract }}</td>
+            <td class="small">{{ wl.workorder }}</td>
+            <td class="small text-muted">{{ wl.ticket_ref }}</td>
+            <td class="small text-muted" style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+                title="{{ wl.description }}">{{ wl.description }}</td>
+            <td class="text-end fw-semibold">{{ wl.duration_h }}</td>
+            <td class="text-center">
+              {% if wl.is_billable %}
+                <span class="badge badge-billable">Ano</span>
+              {% else %}
+                <span class="badge badge-not-billable">Ne</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fmt(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function setPreset(preset) {
+  const today = new Date();
+  let from, to;
+  const y = today.getFullYear();
+  const m = today.getMonth();
+
+  if (preset === 'this_week') {
+    const day = today.getDay() || 7;
+    from = new Date(today); from.setDate(today.getDate() - day + 1);
+    to = new Date(from); to.setDate(from.getDate() + 6);
+  } else if (preset === 'last_week') {
+    const day = today.getDay() || 7;
+    from = new Date(today); from.setDate(today.getDate() - day - 6);
+    to = new Date(from); to.setDate(from.getDate() + 6);
+  } else if (preset === 'this_month') {
+    from = new Date(y, m, 1);
+    to = new Date(y, m + 1, 0);
+  } else if (preset === 'last_month') {
+    from = new Date(y, m - 1, 1);
+    to = new Date(y, m, 0);
+  } else if (preset === 'ytd') {
+    from = new Date(y, 0, 1);
+    to = new Date(today);
+  }
+
+  document.getElementById('date_from').value = fmt(from);
+  document.getElementById('date_to').value = fmt(to);
+  document.getElementById('filterForm').submit();
+}
+
+function updateExportLinks() {
+  const df = document.getElementById('date_from').value;
+  const dt = document.getElementById('date_to').value;
+  const agent = document.getElementById('agent_select').value;
+  const params = new URLSearchParams({ date_from: df, date_to: dt, agent });
+  document.getElementById('exportXls').href = `/reporting/internal/export/xls?${params}`;
+  document.getElementById('exportPdf').href = `/reporting/internal/export/pdf?${params}`;
+}
+
+// Update export links on load and on any filter change
+document.addEventListener('DOMContentLoaded', updateExportLinks);
+document.getElementById('date_from').addEventListener('change', updateExportLinks);
+document.getElementById('date_to').addEventListener('change', updateExportLinks);
+document.getElementById('agent_select').addEventListener('change', updateExportLinks);
+</script>
+{% endblock %}

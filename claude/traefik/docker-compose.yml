@@ -1,0 +1,45 @@
+# Traefik reverse proxy — sdílený pro všechny aplikace na tomto serveru
+#
+# Spuštění (jednorázově):
+#   docker network create traefik_proxy
+#   docker compose up -d
+#
+# Po spuštění dashboard dostupný na http://traefik.localhost
+
+
+services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik_proxy"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/dynamic.yml"
+      - "--providers.file.watch=true"
+      - "--accesslog=true"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOCKER_API_VERSION=1.45
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./dynamic.yml:/dynamic.yml:ro"
+      - "./certs:/certs:ro"
+    networks:
+      - traefik_proxy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=web"
+
+networks:
+  traefik_proxy:
+    external: true

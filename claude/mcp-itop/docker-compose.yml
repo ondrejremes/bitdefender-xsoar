@@ -5,6 +5,8 @@ services:
     environment:
       - MCP_TRANSPORT=sse
       - MCP_PORT=8000
+    ports:
+      - "8080:8000"
     networks:
       - traefik_proxy
     restart: unless-stopped
@@ -14,6 +16,7 @@ services:
       - "traefik.http.routers.mcp-itop.entrypoints=websecure"
       - "traefik.http.routers.mcp-itop.tls=true"
       - "traefik.http.services.mcp-itop.loadbalancer.server.port=8000"
+      - "traefik.http.routers.mcp-itop.middlewares=cors-mcp@file"
 
 networks:
   traefik_proxy:

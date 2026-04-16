@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+
+  <classes>
+
+    <!-- ── UserRequest: Agrofert-specific import fields ───────────────────── -->
+    <class id="UserRequest" _delta="must_exist">
+      <fields>
+
+        <!-- AGF HD ticket ID (e.g. "DC28073") — used for deduplication on import -->
+        <field id="external_id" xsi:type="AttributeString" _delta="define">
+          <sql>agf_external_id</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+          <allowed_values/>
+          <max_size>64</max_size>
+          <validation_pattern/>
+        </field>
+
+        <!-- Agrofert dceřiná společnost (e.g. "AFEED, a.s.", "DEZA, a. s.") -->
+        <field id="subsidiary" xsi:type="AttributeString" _delta="define">
+          <sql>agf_subsidiary</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+          <allowed_values/>
+          <max_size>255</max_size>
+          <validation_pattern/>
+        </field>
+
+        <!-- Direct URL to the ticket in AGF HD portal -->
+        <field id="agf_ticket_url" xsi:type="AttributeURL" _delta="define">
+          <sql>agf_ticket_url</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+          <target>_blank</target>
+        </field>
+
+        <!-- Linked JIRA issue ID (e.g. "PROJ-123") -->
+        <field id="agf_jira_id" xsi:type="AttributeString" _delta="define">
+          <sql>agf_jira_id</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+          <allowed_values/>
+          <max_size>64</max_size>
+          <validation_pattern/>
+        </field>
+
+      </fields>
+
+      <presentation>
+        <details>
+          <items>
+            <item id="col:col2" _delta="must_exist">
+              <items>
+                <item id="fieldset:Agrofert HD" _delta="define">
+                  <rank>80</rank>
+                  <items>
+                    <item id="external_id">
+                      <rank>10</rank>
+                    </item>
+                    <item id="subsidiary">
+                      <rank>20</rank>
+                    </item>
+                    <item id="agf_ticket_url">
+                      <rank>30</rank>
+                    </item>
+                    <item id="agf_jira_id">
+                      <rank>40</rank>
+                    </item>
+                  </items>
+                </item>
+              </items>
+            </item>
+          </items>
+        </details>
+      </presentation>
+
+    </class>
+
+    <!-- ── WorkLog: general fields for all customers ──────────────────────── -->
+    <class id="WorkLog" _delta="must_exist">
+      <fields>
+
+        <!-- Where the work was performed — default: remote -->
+        <field id="work_location" xsi:type="AttributeEnum" _delta="define">
+          <sql>work_location</sql>
+          <default_value>remote</default_value>
+          <is_null_allowed>false</is_null_allowed>
+          <values>
+            <value id="remote">Remote</value>
+            <value id="onsite">On-site</value>
+          </values>
+        </field>
+
+        <!-- Travel distance in km (relevant for on-site visits) -->
+        <field id="kilometers" xsi:type="AttributeDecimal" _delta="define">
+          <sql>kilometers</sql>
+          <default_value>0</default_value>
+          <is_null_allowed>true</is_null_allowed>
+          <digits>6</digits>
+          <decimals>1</decimals>
+        </field>
+
+      </fields>
+
+      <presentation>
+        <details>
+          <items>
+            <item id="col:col1" _delta="must_exist">
+              <items>
+                <item id="work_location" _delta="define">
+                  <rank>25</rank>
+                </item>
+                <item id="kilometers" _delta="define">
+                  <rank>26</rank>
+                </item>
+              </items>
+            </item>
+          </items>
+        </details>
+      </presentation>
+
+    </class>
+
+  </classes>
+
+</itop_design>

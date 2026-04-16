@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% block title %}Externí reporting{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold mb-3">Externí reporting</h4>
+
+  <!-- Filter form -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-end">
+
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">Zákazník / Kontrakt</label>
+          <select class="form-select form-select-sm" name="contract_id">
+            <option value="">— Vyberte kontrakt —</option>
+            {% for c in contracts %}
+            <option value="{{ c.id }}" {% if c.id == contract_id %}selected{% endif %}>
+              {{ c.org }} — {{ c.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold">Typ období</label>
+          <select class="form-select form-select-sm" name="period_type" onchange="updatePeriodUI(this.value)">
+            <option value="monthly"   {% if period_type == 'monthly'   %}selected{% endif %}>Měsíční</option>
+            <option value="quarterly" {% if period_type == 'quarterly' %}selected{% endif %}>Čtvrtletní</option>
+            <option value="yearly"    {% if period_type == 'yearly'    %}selected{% endif %}>Roční</option>
+          </select>
+        </div>
+
+        <div class="col-md-1">
+          <label class="form-label small fw-semibold">Rok</label>
+          <select class="form-select form-select-sm" name="year">
+            {% for y in years %}
+            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-1" id="monthPicker" {% if period_type != 'monthly' %}style="display:none"{% endif %}>
+          <label class="form-label small fw-semibold">Měsíc</label>
+          <select class="form-select form-select-sm" name="month">
+            {% for m in range(1, 13) %}
+            <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-1" id="quarterPicker" {% if period_type != 'quarterly' %}style="display:none"{% endif %}>
+          <label class="form-label small fw-semibold">Kvartál</label>
+          <select class="form-select form-select-sm" name="quarter">
+            {% for q in range(1, 5) %}
+            <option value="{{ q }}" {% if q == quarter %}selected{% endif %}>Q{{ q }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-1">
+          <label class="form-label small fw-semibold">Jazyk</label>
+          <select class="form-select form-select-sm" name="lang">
+            <option value="cs" {% if lang == 'cs' %}selected{% endif %}>CS</option>
+            <option value="en" {% if lang == 'en' %}selected{% endif %}>EN</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold d-block">General Tasks</label>
+          <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" name="show_general" value="1"
+                   id="showGen" {% if show_general == '1' %}checked{% endif %}>
+            <label class="form-check-label small" for="showGen">Zahrnout</label>
+          </div>
+        </div>
+
+        <div class="col-md-1">
+          <button class="btn btn-primary btn-sm w-100" type="submit">
+            <i class="bi bi-search"></i> Zobrazit
+          </button>
+        </div>
+
+        {% if report_data %}
+        <div class="col-md-1">
+          <a href="/reporting/external/export/xls?contract_id={{ contract_id }}&period_type={{ period_type }}&year={{ year }}&month={{ month }}&quarter={{ quarter }}&lang={{ lang }}&show_general={{ show_general }}"
+             class="btn btn-success btn-sm w-100">
+            <i class="bi bi-file-earmark-excel"></i> XLS
+          </a>
+        </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  {% if not report_data and contract_id %}
+  <div class="alert alert-info">Žádná data pro vybrané období.</div>
+  {% endif %}
+
+  {% if report_data %}
+  {% set c = report_data.contract %}
+
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h5 class="mb-0 fw-bold">{{ c.org }} — {{ c.name }}</h5>
+      <span class="text-muted small">{{ date_from }} – {{ date_to }}</span>
+    </div>
+    <span class="badge fs-6 px-3 py-2" style="background:#6B21A8; color:#fff;">
+      {{ report_data.period_label }}
+    </span>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card p-3">
+        <div class="text-muted small">Celkem hodin</div>
+        <div class="fs-3 fw-bold">{{ report_data.total_h }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <div class="text-muted small">Fakturovatelné hodiny</div>
+        <div class="fs-3 fw-bold text-success">{{ report_data.billable_h }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <div class="text-muted small">Zákaznické tickety</div>
+        <div class="fs-3 fw-bold">{{ report_data.portal_tickets | length }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <div class="text-muted small">Pravidelné aktivity</div>
+        <div class="fs-3 fw-bold text-secondary">{{ report_data.gen_tickets | length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget -->
+  {% if c.budget_mode != 'none' and c.monthly_budgets %}
+  <div class="card mb-4">
+    <div class="card-header bg-white fw-semibold border-0 pt-3">
+      <i class="bi bi-speedometer2 me-1"></i> Čerpání paušálu
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Měsíc</th>
+            <th class="text-end">Rozpočet (h)</th>
+            <th class="text-end">Čerpáno (h)</th>
+            <th class="text-end">Zbývá (h)</th>
+            <th style="width:160px">Využití</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mb in c.monthly_budgets %}
+          {% if mb.period_start[:7] >= date_from[:7] and mb.period_start[:7] <= date_to[:7] %}
+          {% set pct = mb.usage_percent | int %}
+          <tr>
+            <td class="small">{{ mb.period_start[:7] }}</td>
+            <td class="text-end small">{{ mb.budgeted_hours }}</td>
+            <td class="text-end small fw-semibold">{{ mb.consumed_hours }}</td>
+            <td class="text-end small {% if mb.remaining_hours | float < 0 %}text-danger{% endif %}">{{ mb.remaining_hours }}</td>
+            <td>
+              <div class="progress mb-1" style="height:6px;">
+                <div class="progress-bar {% if pct >= 100 %}bg-danger{% elif pct >= 80 %}bg-warning{% else %}bg-success{% endif %}"
+                     style="width:{{ [pct, 100] | min }}%"></div>
+              </div>
+              <span class="small text-muted">{{ pct }}%</span>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Portal tickets -->
+  {% if report_data.portal_tickets %}
+  <div class="card mb-4">
+    <div class="card-header bg-white fw-semibold border-0 pt-3">
+      <i class="bi bi-envelope me-1"></i> Servisní požadavky zákazníka
+      <span class="badge bg-secondary ms-1">{{ report_data.portal_tickets | length }}</span>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Ref</th>
+            <th>Popis</th>
+            <th>Zadavatel</th>
+            <th>Stav</th>
+            <th class="text-end">Response (h)</th>
+            <th class="text-end">Resolution (h)</th>
+            <th class="text-end">Hodiny</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in report_data.portal_tickets %}
+          <tr class="ticket-row" style="cursor:pointer;"
+              data-id="{{ t.id }}" data-ref="{{ t.ref }}" data-title="{{ t.title | e }}">
+            <td class="small fw-semibold">{{ t.ref }}</td>
+            <td class="small" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ t.title }}">{{ t.title }}</td>
+            <td class="small">{{ t.caller }}</td>
+            <td><span class="badge bg-{{ 'secondary' if t.status == 'closed' else 'warning' }}">{{ t.status }}</span></td>
+            <td class="text-end small {% if t.sla_tto_passed %}text-danger fw-bold{% endif %}">
+              {{ t.tto_h if t.tto_h is not none else '—' }}
+            </td>
+            <td class="text-end small {% if t.sla_ttr_passed %}text-danger fw-bold{% endif %}">
+              {{ t.ttr_h if t.ttr_h is not none else '—' }}
+            </td>
+            <td class="text-end small fw-semibold">{{ t.total_h }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- General tasks -->
+  {% if show_general == '1' and report_data.gen_tickets %}
+  <div class="card mb-4">
+    <div class="card-header bg-white fw-semibold border-0 pt-3">
+      <i class="bi bi-arrow-repeat me-1"></i> Pravidelné aktivity
+      <span class="badge bg-secondary ms-1">{{ report_data.gen_tickets | length }}</span>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>Ref</th><th>Název</th><th class="text-end">Hodiny</th></tr>
+        </thead>
+        <tbody>
+          {% for t in report_data.gen_tickets %}
+          <tr class="ticket-row" style="cursor:pointer;"
+              data-id="{{ t.id }}" data-ref="{{ t.ref }}" data-title="{{ t.title | e }}">
+            <td class="small fw-semibold text-muted">{{ t.ref }}</td>
+            <td class="small text-muted" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ t.title }}</td>
+            <td class="text-end small fw-semibold">{{ t.total_h }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+<!-- Detail modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title fw-bold mb-0" id="modalTitle">—</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updatePeriodUI(type) {
+  document.getElementById('monthPicker').style.display   = type === 'monthly'   ? '' : 'none';
+  document.getElementById('quarterPicker').style.display = type === 'quarterly' ? '' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.ticket-row').forEach(function (row) {
+    row.addEventListener('click', function () {
+      document.getElementById('modalTitle').textContent = row.dataset.ref + ' \u2013 ' + row.dataset.title;
+      const body = document.getElementById('modalBody');
+      // Content is server-rendered Jinja2 HTML with striptags on all iTop fields
+      body.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>';
+      new bootstrap.Modal(document.getElementById('ticketModal')).show();
+      fetch('/tickets/detail/' + row.dataset.id)
+        .then(r => r.text())
+        .then(html => { body.innerHTML = html; }) // server-rendered HTML, not raw user input
+        .catch(() => { body.textContent = 'Chyba p\u0159i na\u010d\u00edt\u00e1n\u00ed.'; });
+    });
+  });
+});
+
+function toggleWO(header) {
+  const detail = header.nextElementSibling;
+  const icon = header.querySelector('.toggle-icon');
+  if (detail.style.display === 'none') {
+    detail.style.display = '';
+    icon.classList.replace('bi-chevron-right', 'bi-chevron-down');
+  } else {
+    detail.style.display = 'none';
+    icon.classList.replace('bi-chevron-down', 'bi-chevron-right');
+  }
+}
+</script>
+{% endblock %}

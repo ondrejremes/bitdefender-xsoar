@@ -1,0 +1,17 @@
+services:
+  itop:
+    build: .
+    container_name: itop
+    env_file: .env
+    networks:
+      - traefik_proxy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.itop.rule=Host(`itop.localhost`)"
+      - "traefik.http.routers.itop.entrypoints=web"
+      - "traefik.http.services.itop.loadbalancer.server.port=8000"
+
+networks:
+  traefik_proxy:
+    external: true

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}JIRA Reporting{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0 fw-bold"><i class="bi bi-journal-code me-2"></i>JIRA Reporting</h4>
+    <form id="filterForm" class="d-flex gap-2 align-items-center flex-wrap" method="get">
+      <!-- Project -->
+      <select name="project_key" class="form-select form-select-sm" style="min-width:140px;">
+        <option value="">-- Projekt --</option>
+        {% for p in projects %}
+        <option value="{{ p.key }}" {% if project_key == p.key %}selected{% endif %}>{{ p.key }} – {{ p.name }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Period type -->
+      <select name="period_type" id="periodType" class="form-select form-select-sm" style="min-width:120px;" onchange="togglePeriodFields()">
+        <option value="monthly"  {% if period_type=='monthly'  %}selected{% endif %}>Měsíční</option>
+        <option value="quarterly"{% if period_type=='quarterly'%}selected{% endif %}>Kvartální</option>
+        <option value="yearly"   {% if period_type=='yearly'   %}selected{% endif %}>Roční</option>
+      </select>
+
+      <!-- Year -->
+      <select name="year" class="form-select form-select-sm" style="min-width:90px;">
+        {% for y in years %}
+        <option value="{{ y }}" {% if year == y %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Month -->
+      <select name="month" id="monthField" class="form-select form-select-sm" style="min-width:110px;">
+        {% set month_names = ['','Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'] %}
+        {% for m in range(1,13) %}
+        <option value="{{ m }}" {% if month == m %}selected{% endif %}>{{ month_names[m] }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Quarter -->
+      <select name="quarter" id="quarterField" class="form-select form-select-sm" style="min-width:90px; display:none;">
+        {% for q in range(1,5) %}
+        <option value="{{ q }}" {% if quarter == q %}selected{% endif %}>Q{{ q }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Organization -->
+      {% if organizations %}
+      <select name="organization" class="form-select form-select-sm" style="min-width:160px;">
+        <option value="">-- Všichni zákazníci --</option>
+        {% for org in organizations %}
+        <option value="{{ org.name }}" {% if organization == org.name %}selected{% endif %}>{{ org.name }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+
+      <button class="btn btn-sm btn-primary" type="submit">
+        <i class="bi bi-funnel"></i> Filtrovat
+      </button>
+    </form>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i><strong>Chyba JIRA API:</strong>
+    <pre class="mb-0 mt-1 small">{{ error }}</pre>
+  </div>
+  {% endif %}
+
+  {% if project_key and not error %}
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card stat-card p-3">
+        <div class="text-muted small">Celkem hodin (období)</div>
+        <div class="fs-3 fw-bold">{{ total_h }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card p-3">
+        <div class="text-muted small">Počet issues</div>
+        <div class="fs-3 fw-bold">{{ issues | length }}</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-3">
+        <div class="text-muted small mb-2">Hodiny podle technika</div>
+        {% for name, h in by_assignee.items() %}
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="small">{{ name }}</span>
+          <span class="badge bg-primary">{{ h }} h</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues table -->
+  {% if issues %}
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Issue</th>
+            <th>Název</th>
+            <th>Typ</th>
+            <th>Status</th>
+            <th>Přiřazeno</th>
+            <th>Priorita</th>
+            <th class="text-end">Hodiny (období)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for issue in issues %}
+          <tr data-bs-toggle="collapse" data-bs-target="#wl-{{ loop.index }}" style="cursor:pointer;">
+            <td><a href="{{ issue.url }}" target="_blank" onclick="event.stopPropagation()">{{ issue.key }}</a></td>
+            <td>{{ issue.summary }}</td>
+            <td><span class="badge bg-secondary">{{ issue.issue_type }}</span></td>
+            <td>
+              {% if issue.status in ['Done','Closed','Resolved'] %}
+                <span class="badge bg-success">{{ issue.status }}</span>
+              {% elif issue.status in ['In Progress','In Review'] %}
+                <span class="badge bg-warning text-dark">{{ issue.status }}</span>
+              {% else %}
+                <span class="badge bg-light text-dark border">{{ issue.status }}</span>
+              {% endif %}
+            </td>
+            <td>{{ issue.assignee }}</td>
+            <td>{{ issue.priority }}</td>
+            <td class="text-end fw-semibold">{{ issue.period_h }} h</td>
+          </tr>
+          <!-- Worklog detail row -->
+          <tr class="collapse" id="wl-{{ loop.index }}">
+            <td colspan="7" class="p-0">
+              <div class="bg-light px-4 py-2">
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th>Technik</th>
+                      <th>Datum</th>
+                      <th>Hodiny</th>
+                      <th>Popis</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for wl in issue.worklogs %}
+                    <tr>
+                      <td>{{ wl.author }}</td>
+                      <td>{{ wl.started }}</td>
+                      <td>{{ wl.duration_h }} h</td>
+                      <td class="text-muted small">{{ wl.comment or '–' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-info">Žádné issues s worklogy v daném období.</div>
+  {% endif %}
+
+  {% elif not project_key %}
+  <div class="alert alert-secondary">Vyberte projekt a období.</div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePeriodFields() {
+  const type = document.getElementById('periodType').value;
+  document.getElementById('monthField').style.display   = type === 'monthly'   ? '' : 'none';
+  document.getElementById('quarterField').style.display = type === 'quarterly' ? '' : 'none';
+}
+togglePeriodFields();
+</script>
+{% endblock %}

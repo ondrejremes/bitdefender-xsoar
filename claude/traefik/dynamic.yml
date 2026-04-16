@@ -1,0 +1,19 @@
+tls:
+  certificates:
+    - certFile: /certs/mcp-itop.localhost.pem
+      keyFile: /certs/mcp-itop.localhost-key.pem
+
+http:
+  middlewares:
+    cors-mcp:
+      headers:
+        accessControlAllowOriginList:
+          - "*"
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "*"
+        accessControlExposeHeaders:
+          - "*"
