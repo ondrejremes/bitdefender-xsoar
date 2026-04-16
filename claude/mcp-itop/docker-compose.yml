@@ -11,7 +11,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mcp-itop.rule=Host(`mcp-itop.localhost`)"
-      - "traefik.http.routers.mcp-itop.entrypoints=web"
+      - "traefik.http.routers.mcp-itop.entrypoints=websecure"
+      - "traefik.http.routers.mcp-itop.tls=true"
       - "traefik.http.services.mcp-itop.loadbalancer.server.port=8000"
 
 networks:

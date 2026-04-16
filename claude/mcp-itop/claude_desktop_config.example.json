@@ -16,7 +16,7 @@
   "_comment_B": "Varianta B: Docker + Traefik (SSE transport)",
   "mcpServers": {
     "itop": {
-      "url": "http://mcp-itop.localhost/sse"
+      "url": "https://mcp-itop.localhost/sse"
     }
   }
 }

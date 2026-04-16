@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "itop": {
+      "url": "https://mcp-itop.localhost/sse"
+    }
+  }
+}
