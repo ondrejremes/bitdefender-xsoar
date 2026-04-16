@@ -68,6 +68,7 @@ async def log_work(
     duration_minutes: int,
     description: str,
     log_date: str | None = None,
+    billable: bool | None = None,
 ) -> dict:
     """
     Vytvoří nový WorkLog na zadaný WorkOrder.
@@ -77,6 +78,7 @@ async def log_work(
         duration_minutes:  trvání v minutách
         description:       popis vykonané práce
         log_date:          datum výkazu YYYY-MM-DD (výchozí: dnes)
+        billable:          True = fakturovatelné, False = nefakturovatelné, None = dle smlouvy
     """
     if not log_date:
         log_date = date.today().isoformat()
@@ -109,6 +111,9 @@ async def log_work(
         "duration": duration_seconds,
         "start_date": f"{log_date} 08:00:00",
     }
+    if billable is not None:
+        fields["override_billable"] = "yes"
+        fields["is_billable"] = "yes" if billable else "no"
 
     result = await core_create("WorkLog", fields, comment=description)
     result["duration_hours"] = round(duration_seconds / 3600, 2)

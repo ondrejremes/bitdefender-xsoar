@@ -154,6 +154,10 @@ async def handle_list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Datum výkazu ve formátu YYYY-MM-DD (volitelné, výchozí: dnes).",
                     },
+                    "billable": {
+                        "type": "boolean",
+                        "description": "True = fakturovatelné, False = nefakturovatelné. Pokud nevyplněno, určí smlouva.",
+                    },
                 },
                 "required": ["workorder_id", "duration_minutes", "description"],
             },
@@ -203,6 +207,7 @@ async def handle_call_tool(name: str, arguments: dict) -> list[TextContent]:
                 duration_minutes=arguments["duration_minutes"],
                 description=arguments["description"],
                 log_date=arguments.get("log_date"),
+                billable=arguments.get("billable"),
             )
 
         else:
