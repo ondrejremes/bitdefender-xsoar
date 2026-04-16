@@ -1,4 +1,5 @@
 """Nástroje pro vykazování práce (WorkLogs)."""
+import os
 from datetime import date, datetime
 from mcp_itop.itop_client import core_get, core_create
 
@@ -83,13 +84,32 @@ async def log_work(
     # iTOP ukládá duration v sekundách
     duration_seconds = duration_minutes * 60
 
+    # Načti ticket_id z WorkOrdu
+    wo_list = await core_get("WorkOrder", f"SELECT WorkOrder WHERE id = {workorder_id}", "ticket_id,agent_id")
+    if not wo_list:
+        raise ValueError(f"WorkOrder {workorder_id} nebyl nalezen")
+    wo = wo_list[0]
+
+    # agent_id: vezmi z WorkOrdu, nebo fallback na ITOP_DEFAULT_USER
+    agent_id = wo.get("agent_id")
+    if not agent_id or str(agent_id) == "0":
+        default_email = os.getenv("ITOP_DEFAULT_USER", "")
+        if default_email:
+            persons = await core_get("Person", f"SELECT Person WHERE email = '{default_email}'", "id")
+            if persons:
+                agent_id = persons[0]["id"]
+    if not agent_id:
+        raise ValueError("Nepodařilo se určit agenta – nastavte ITOP_DEFAULT_USER v .env")
+
     fields = {
         "workorder_id": workorder_id,
+        "ticket_id": wo["ticket_id"],
+        "agent_id": agent_id,
         "description": description,
         "duration": duration_seconds,
         "start_date": f"{log_date} 08:00:00",
     }
 
-    result = await core_create("WorkLog", fields)
+    result = await core_create("WorkLog", fields, comment=description)
     result["duration_hours"] = round(duration_seconds / 3600, 2)
     return result

@@ -60,9 +60,9 @@ async def core_get(
     return [{"id": obj["key"], **obj["fields"]} for obj in objects.values()]
 
 
-async def core_create(class_name: str, fields: dict[str, Any]) -> dict[str, Any]:
+async def core_create(class_name: str, fields: dict[str, Any], comment: str = "") -> dict[str, Any]:
     """Vytvoří nový objekt v iTOP."""
-    payload = {"fields": fields, "output_fields": "id"}
+    payload = {"fields": fields, "output_fields": "id", "comment": comment}
     objects = await _call("core/create", class_name, payload)
     if objects:
         first = next(iter(objects.values()))
