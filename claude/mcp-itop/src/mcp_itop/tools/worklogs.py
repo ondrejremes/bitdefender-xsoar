@@ -24,12 +24,12 @@ async def get_worklogs(
     if not date_to:
         date_to = date.today().isoformat()
 
-    filters = [f"wl.date >= '{date_from}'", f"wl.date <= '{date_to} 23:59:59'"]
+    filters = [f"wl.start_date >= '{date_from}'", f"wl.start_date <= '{date_to} 23:59:59'"]
 
     joins = (
         "SELECT WorkLog AS wl "
         "JOIN WorkOrder AS wo ON wl.workorder_id = wo.id "
-        "JOIN UserRequest AS ur ON wo.request_id = ur.id "
+        "JOIN UserRequest AS ur ON wo.ticket_id = ur.id "
         "JOIN Organization AS o ON ur.org_id = o.id "
         "JOIN Person AS p ON wl.agent_id = p.id"
     )
@@ -45,7 +45,7 @@ async def get_worklogs(
     logs = await core_get(
         "WorkLog",
         oql,
-        output_fields="date,agent_id_friendlyname,workorder_id_friendlyname,description,duration",
+        output_fields="start_date,end_date,duration,agent_id_friendlyname,workorder_id_friendlyname,description",
     )
 
     # Přidáme odvozené pole pro přehlednost
@@ -53,7 +53,7 @@ async def get_worklogs(
         duration_sec = int(log.get("duration") or 0)
         log["duration_hours"] = round(duration_sec / 3600, 2)
 
-    return sorted(logs, key=lambda l: l.get("date", ""))
+    return sorted(logs, key=lambda l: l.get("start_date", ""))
 
 
 async def get_my_worklogs_today(technician: str) -> list[dict]:
@@ -87,7 +87,7 @@ async def log_work(
         "workorder_id": workorder_id,
         "description": description,
         "duration": duration_seconds,
-        "date": f"{log_date} 08:00:00",
+        "start_date": f"{log_date} 08:00:00",
     }
 
     result = await core_create("WorkLog", fields)

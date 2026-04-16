@@ -27,14 +27,14 @@ async def list_open_workorders(ticket_ref: str | None = None, customer_name: str
     if ticket_ref:
         oql = (
             f"SELECT WorkOrder AS wo "
-            f"JOIN UserRequest AS ur ON wo.request_id = ur.id "
+            f"JOIN UserRequest AS ur ON wo.ticket_id = ur.id "
             f"WHERE ur.ref = '{ticket_ref}' "
             f"AND wo.status NOT IN ('closed','resolved')"
         )
     elif customer_name:
         oql = (
             f"SELECT WorkOrder AS wo "
-            f"JOIN UserRequest AS ur ON wo.request_id = ur.id "
+            f"JOIN UserRequest AS ur ON wo.ticket_id = ur.id "
             f"JOIN Organization AS o ON ur.org_id = o.id "
             f"WHERE wo.status NOT IN ('closed','resolved') "
             f"AND o.name LIKE '%{customer_name}%'"
@@ -45,9 +45,9 @@ async def list_open_workorders(ticket_ref: str | None = None, customer_name: str
     workorders = await core_get(
         "WorkOrder",
         oql,
-        output_fields="name,status,request_id_friendlyname,agent_id_friendlyname,start_date,billing_method",
+        output_fields="name,status,ticket_id_friendlyname,ticket_ref,agent_id_friendlyname,start_date,billing_method",
     )
-    return sorted(workorders, key=lambda w: w.get("request_id_friendlyname", ""))
+    return sorted(workorders, key=lambda w: w.get("ticket_id_friendlyname", ""))
 
 
 async def search_tickets(query: str) -> list[dict]:
