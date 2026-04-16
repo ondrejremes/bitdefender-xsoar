@@ -235,10 +235,12 @@ def _run_sse():
     async def handle_sse(request):
         async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
             await app.run(streams[0], streams[1], app.create_initialization_options())
+        from starlette.responses import Response
+        return Response()
 
     starlette_app = Starlette(
         routes=[
-            Route("/sse", endpoint=handle_sse),
+            Route("/sse", endpoint=handle_sse, methods=["GET"]),
             Mount("/messages/", app=sse.handle_post_message),
         ]
     )
