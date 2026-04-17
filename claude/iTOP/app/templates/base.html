@@ -8,11 +8,66 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body { background: #f5f6fa; }
-    .sidebar { min-height: 100vh; background: #1a2235; }
-    .sidebar .nav-link { color: #a0aec0; border-radius: 8px; margin: 2px 0; }
-    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #2d3a50; color: #fff; }
-    .sidebar .brand { color: #fff; font-size: 1.2rem; font-weight: 700; }
-    .sidebar .section-label { color: #4a5568; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Sidebar */
+    .sidebar {
+      min-height: 100vh;
+      background: #1a2235;
+      width: 240px;
+      flex-shrink: 0;
+      transition: width .2s ease;
+      overflow: hidden;
+      position: relative;
+    }
+    .sidebar.collapsed { width: 60px; }
+
+    .sidebar .nav-link {
+      color: #a0aec0;
+      border-radius: 8px;
+      margin: 2px 0;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+    }
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active { background: #2d3a50; color: #fff; }
+
+    .sidebar .brand {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sidebar .section-label {
+      color: #4a5568;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sidebar .link-text { transition: opacity .15s ease; }
+    .sidebar.collapsed .link-text { opacity: 0; width: 0; overflow: hidden; }
+    .sidebar.collapsed .section-label { opacity: 0; }
+    .sidebar.collapsed .brand-text { opacity: 0; width: 0; overflow: hidden; }
+
+    /* Toggle button */
+    .sidebar-toggle {
+      position: absolute;
+      top: 12px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #a0aec0;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .sidebar-toggle:hover { color: #fff; background: #2d3a50; }
+
+    /* Cards & tables */
     .card { border: none; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
     .stat-card { border-radius: 12px; }
     .table th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .5px; color: #6c757d; }
@@ -24,34 +79,45 @@
 <body>
 <div class="d-flex">
   <!-- Sidebar -->
-  <div class="sidebar p-3" style="width:240px; flex-shrink:0;">
+  <div class="sidebar p-3" id="sidebar">
+    <button class="sidebar-toggle" id="sidebarToggle" title="Skrýt/zobrazit menu">
+      <i class="bi bi-layout-sidebar-reverse" id="toggleIcon"></i>
+    </button>
+
     <div class="brand mb-4 px-2">
-      <i class="bi bi-layers-half me-2"></i>iTop Portal
+      <i class="bi bi-layers-half me-2"></i><span class="brand-text">iTop Portal</span>
     </div>
+
     <div class="section-label px-2 mb-1">Reporting</div>
     <nav class="nav flex-column mb-3">
       <a class="nav-link {% if request.url.path == '/reporting/internal' %}active{% endif %}"
-         href="/reporting/internal">
-        <i class="bi bi-bar-chart me-2"></i>Interní reporting
+         href="/reporting/internal" title="Interní reporting">
+        <i class="bi bi-bar-chart me-2"></i><span class="link-text">Interní reporting</span>
       </a>
       <a class="nav-link {% if '/reporting/external' in request.url.path %}active{% endif %}"
-         href="/reporting/external/">
-        <i class="bi bi-file-earmark-text me-2"></i>Externí reporting
+         href="/reporting/external/" title="Externí reporting">
+        <i class="bi bi-file-earmark-text me-2"></i><span class="link-text">Externí reporting</span>
       </a>
       <a class="nav-link {% if '/reporting/jira' in request.url.path %}active{% endif %}"
-         href="/reporting/jira/">
-        <i class="bi bi-journal-code me-2"></i>JIRA Reporting
+         href="/reporting/jira/" title="JIRA Reporting">
+        <i class="bi bi-journal-code me-2"></i><span class="link-text">JIRA Reporting</span>
       </a>
     </nav>
+
     <div class="section-label px-2 mb-1">Tickety</div>
     <nav class="nav flex-column mb-3">
       <a class="nav-link {% if '/tickets' in request.url.path %}active{% endif %}"
-         href="/tickets/"><i class="bi bi-ticket me-2"></i>Přehled ticketů</a>
+         href="/tickets/" title="Přehled ticketů">
+        <i class="bi bi-ticket me-2"></i><span class="link-text">Přehled ticketů</span>
+      </a>
     </nav>
+
     <div class="section-label px-2 mb-1">Import</div>
     <nav class="nav flex-column">
       <a class="nav-link {% if '/import/agrofert' in request.url.path %}active{% endif %}"
-         href="/import/agrofert/"><i class="bi bi-upload me-2"></i>AGF Helpdesk</a>
+         href="/import/agrofert/" title="AGF Helpdesk">
+        <i class="bi bi-upload me-2"></i><span class="link-text">AGF Helpdesk</span>
+      </a>
     </nav>
   </div>
 
@@ -61,6 +127,31 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+  const sidebar = document.getElementById('sidebar');
+  const btn = document.getElementById('sidebarToggle');
+  const icon = document.getElementById('toggleIcon');
+
+  function setCollapsed(collapsed) {
+    if (collapsed) {
+      sidebar.classList.add('collapsed');
+      icon.className = 'bi bi-layout-sidebar';
+    } else {
+      sidebar.classList.remove('collapsed');
+      icon.className = 'bi bi-layout-sidebar-reverse';
+    }
+    localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+  }
+
+  // Restore saved state
+  setCollapsed(localStorage.getItem('sidebarCollapsed') === '1');
+
+  btn.addEventListener('click', function () {
+    setCollapsed(!sidebar.classList.contains('collapsed'));
+  });
+})();
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
