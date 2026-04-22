@@ -4,6 +4,17 @@ import uuid
 
 API_VERSION = 'v1.0'
 
+ALL_EVENT_TYPES = [
+    'av', 'avc', 'hd', 'aph', 'fw', 'dp', 'uc',
+    'antiexploit', 'ransomware-mitigation', 'network-sandboxing', 'network-monitor',
+    'exchange-malware', 'new-incident', 'new-extended-incident',
+    'modules', 'sva', 'sva-load', 'registration', 'supa-update-status',
+    'task-status', 'install', 'uninstall', 'hwid-change',
+    'endpoint-moved-in', 'endpoint-moved-out', 'adcloud',
+    'exchange-user-credentials', 'exchange-organization-info',
+    'troubleshooting-activity', 'partner-changed', 'integrations-hub-status',
+]
+
 
 class GravityZoneClient(BaseClient):
     def __init__(self, base_url: str, api_key: str, verify: bool, proxy: bool, company_id: str | None = None):
@@ -157,8 +168,8 @@ class GravityZoneClient(BaseClient):
             'serviceSettings': settings,
         }
         if subscribe_all:
-            params['subscribeToAllEventTypes'] = True
-        return self._call('push', 'setPushEventSettings', self._with_company(params))
+            params['subscribeToEventTypes'] = {t: True for t in ALL_EVENT_TYPES}
+        return self._call('push', 'setPushEventSettings', params)
 
     def send_test_push(self, event_type: str):
         return self._call('push', 'sendTestPushEvent', {'eventType': event_type})
