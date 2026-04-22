@@ -1,0 +1,117 @@
+{
+  "id": "Bitdefender GravityZone Incident Layout",
+  "name": "Bitdefender GravityZone Incident Layout",
+  "group": "incident",
+  "version": -1,
+  "fromVersion": "6.0.0",
+  "system": false,
+  "description": "Layout for Bitdefender GravityZone EDR and XDR incidents (new-incident, new-extended-incident).",
+  "detailsV2": {
+    "tabs": [
+      {
+        "id": "summary",
+        "name": "Legacy Summary",
+        "type": "summary"
+      },
+      {
+        "id": "caseinfoid",
+        "name": "Incident Info",
+        "sections": [
+          {
+            "displayType": "ROW",
+            "h": 2,
+            "i": "incident-case-details",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "type",        "height": 26, "id": "f-type",    "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "severity",    "height": 26, "id": "f-sev",     "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "owner",       "height": 26, "id": "f-owner",   "index": 2, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "occurred",    "height": 26, "id": "f-occ",     "index": 3, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "sourcebrand", "height": 26, "id": "f-brand",   "index": 4, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "Case Details", "static": false, "w": 1, "x": 0, "y": 0
+          },
+          {
+            "displayType": "ROW",
+            "h": 2,
+            "i": "incident-gz-section",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "gravityzoneincidentid",            "height": 26, "id": "f-iid",      "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneincidenttype",          "height": 26, "id": "f-itype",    "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneincidentseverityscore", "height": 26, "id": "f-score",    "index": 2, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneincidentlink",          "height": 26, "id": "f-ilink",    "index": 3, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneincidentpriority",      "height": 26, "id": "f-iprio",    "index": 4, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneincidentactiontaken",   "height": 26, "id": "f-iaction",  "index": 5, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonemalwarename",           "height": 26, "id": "f-mname",   "index": 6, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneattacktypes",           "height": 26, "id": "f-atypes",  "index": 7, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "GravityZone Incident", "static": false, "w": 1, "x": 1, "y": 0
+          },
+          {
+            "displayType": "ROW",
+            "h": 2,
+            "i": "incident-endpoint-section",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "gravityzonecomputername",  "height": 26, "id": "f-cname", "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecomputerip",    "height": 26, "id": "f-cip",   "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecomputerfqdn",  "height": 26, "id": "f-cfqdn", "index": 2, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecomputerid",    "height": 26, "id": "f-cid",   "index": 3, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecompanyname",   "height": 26, "id": "f-cmpny", "index": 4, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "Endpoint", "static": false, "w": 1, "x": 2, "y": 0
+          },
+          {
+            "displayType": "ROW", "h": 2, "i": "incident-indicators",
+            "maxW": 3, "moved": false, "name": "Indicators", "query": "", "queryType": "input", "static": false, "type": "indicators", "w": 2, "x": 0, "y": 2
+          },
+          {
+            "displayType": "ROW", "h": 2, "i": "incident-notes",
+            "maxW": 3, "moved": false, "name": "Notes", "static": false, "type": "notes", "w": 1, "x": 2, "y": 2
+          },
+          {
+            "displayType": "ROW", "h": 2, "i": "incident-closing",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "dbotclosed",  "height": 26, "id": "f-closed",  "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "closereason", "height": 26, "id": "f-creason", "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "closenotes",  "height": 26, "id": "f-cnotes",  "index": 2, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "Closing Information", "static": false, "w": 1, "x": 0, "y": 4
+          }
+        ],
+        "type": "custom"
+      },
+      {"id": "warRoom",      "name": "War Room",      "type": "warRoom"},
+      {"id": "workPlan",     "name": "Work Plan",     "type": "workPlan"},
+      {"id": "evidenceBoard","name": "Evidence Board","type": "evidenceBoard"},
+      {"id": "canvas",       "name": "Canvas",        "type": "canvas"}
+    ]
+  },
+  "close": {
+    "sections": [
+      {"description": "", "fields": [{"fieldId": "incident_closereason", "isVisible": true}, {"fieldId": "incident_closenotes", "isVisible": true}], "isVisible": true, "name": "Basic Information", "type": ""}
+    ]
+  },
+  "edit": {
+    "sections": [
+      {"description": "", "fields": [
+        {"fieldId": "incident_name",     "isVisible": true},
+        {"fieldId": "incident_severity", "isVisible": true},
+        {"fieldId": "incident_owner",    "isVisible": true},
+        {"fieldId": "incident_type",     "isVisible": true}
+      ], "isVisible": true, "name": "Basic Information", "type": ""}
+    ]
+  },
+  "quickView": {
+    "sections": [
+      {"description": "", "fields": [
+        {"fieldId": "incident_type",                        "isVisible": true},
+        {"fieldId": "incident_severity",                    "isVisible": true},
+        {"fieldId": "incident_gravityzoneincidentseverityscore", "isVisible": true},
+        {"fieldId": "incident_gravityzoneincidentlink",     "isVisible": true}
+      ], "isVisible": true, "name": "GravityZone Incident", "type": ""}
+    ]
+  }
+}

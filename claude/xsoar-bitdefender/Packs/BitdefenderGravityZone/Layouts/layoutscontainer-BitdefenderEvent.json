@@ -1,0 +1,96 @@
+{
+  "id": "Bitdefender GravityZone Event Layout",
+  "name": "Bitdefender GravityZone Event Layout",
+  "group": "incident",
+  "version": -1,
+  "fromVersion": "6.0.0",
+  "system": false,
+  "description": "Layout for Bitdefender GravityZone network and system events (fw, network-monitor, aph, modules, registration, etc.).",
+  "detailsV2": {
+    "tabs": [
+      {
+        "id": "summary",
+        "name": "Legacy Summary",
+        "type": "summary"
+      },
+      {
+        "id": "caseinfoid",
+        "name": "Event Info",
+        "sections": [
+          {
+            "displayType": "ROW",
+            "h": 2,
+            "i": "event-case-details",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "type",        "height": 26, "id": "f-type",  "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "severity",    "height": 26, "id": "f-sev",   "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "owner",       "height": 26, "id": "f-owner", "index": 2, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "occurred",    "height": 26, "id": "f-occ",   "index": 3, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "sourcebrand", "height": 26, "id": "f-brand", "index": 4, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "Case Details", "static": false, "w": 1, "x": 0, "y": 0
+          },
+          {
+            "displayType": "ROW",
+            "h": 2,
+            "i": "event-gz-section",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "gravityzonemodule",          "height": 26, "id": "f-module", "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecompanyname",     "height": 26, "id": "f-cmpny",  "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecompanyid",       "height": 26, "id": "f-cmpid",  "index": 2, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecomputername",    "height": 26, "id": "f-cname",  "index": 3, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzonecomputerip",      "height": 26, "id": "f-cip",    "index": 4, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneurl",             "height": 26, "id": "f-url",    "index": 5, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneaphtype",         "height": 26, "id": "f-aph",    "index": 6, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "gravityzoneproductinstalled","height": 26, "id": "f-prod",   "index": 7, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "GravityZone Event", "static": false, "w": 2, "x": 1, "y": 0
+          },
+          {
+            "displayType": "ROW", "h": 2, "i": "event-notes",
+            "maxW": 3, "moved": false, "name": "Notes", "static": false, "type": "notes", "w": 1, "x": 2, "y": 2
+          },
+          {
+            "displayType": "ROW", "h": 2, "i": "event-closing",
+            "isVisible": true,
+            "items": [
+              {"endCol": 2, "fieldId": "dbotclosed",  "height": 26, "id": "f-closed",  "index": 0, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "closereason", "height": 26, "id": "f-creason", "index": 1, "sectionItemType": "field", "startCol": 0},
+              {"endCol": 2, "fieldId": "closenotes",  "height": 26, "id": "f-cnotes",  "index": 2, "sectionItemType": "field", "startCol": 0}
+            ],
+            "maxW": 3, "moved": false, "name": "Closing Information", "static": false, "w": 1, "x": 0, "y": 4
+          }
+        ],
+        "type": "custom"
+      },
+      {"id": "warRoom",      "name": "War Room",      "type": "warRoom"},
+      {"id": "workPlan",     "name": "Work Plan",     "type": "workPlan"},
+      {"id": "canvas",       "name": "Canvas",        "type": "canvas"}
+    ]
+  },
+  "close": {
+    "sections": [
+      {"description": "", "fields": [{"fieldId": "incident_closereason", "isVisible": true}, {"fieldId": "incident_closenotes", "isVisible": true}], "isVisible": true, "name": "Basic Information", "type": ""}
+    ]
+  },
+  "edit": {
+    "sections": [
+      {"description": "", "fields": [
+        {"fieldId": "incident_name",     "isVisible": true},
+        {"fieldId": "incident_severity", "isVisible": true},
+        {"fieldId": "incident_owner",    "isVisible": true}
+      ], "isVisible": true, "name": "Basic Information", "type": ""}
+    ]
+  },
+  "quickView": {
+    "sections": [
+      {"description": "", "fields": [
+        {"fieldId": "incident_type",                   "isVisible": true},
+        {"fieldId": "incident_gravityzonemodule",      "isVisible": true},
+        {"fieldId": "incident_gravityzonecomputername","isVisible": true}
+      ], "isVisible": true, "name": "GravityZone Event", "type": ""}
+    ]
+  }
+}

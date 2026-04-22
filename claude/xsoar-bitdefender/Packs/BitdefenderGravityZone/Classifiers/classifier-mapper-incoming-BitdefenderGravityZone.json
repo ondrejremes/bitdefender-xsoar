@@ -1,0 +1,160 @@
+{
+  "id": "Bitdefender GravityZone - Incoming Mapper",
+  "name": "Bitdefender GravityZone - Incoming Mapper",
+  "description": "Maps Bitdefender GravityZone push event fields to XSOAR incident fields.",
+  "type": "mapping-incoming",
+  "version": -1,
+  "fromVersion": "6.0.0",
+  "mapping": {
+    "Bitdefender GravityZone Malware": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {
+        "name":                             {"simple": "malware_name"},
+        "occurred":                         {"simple": "timestamp"},
+        "severity": {
+          "complex": {
+            "root": "detection_level",
+            "filters": [],
+            "transformers": [{"operator": "MapValuesToTable", "args": {
+              "table": {"value": {"simple": "Aggressive:3,Normal:2,Permissive:1"}, "isContext": false}
+            }}]
+          }
+        },
+        "GravityZone Module":               {"simple": "module"},
+        "GravityZone Company ID":           {"simple": "companyId"},
+        "GravityZone Computer ID":          {"simple": "computer_id"},
+        "GravityZone Computer Name":        {"simple": "computer_name"},
+        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
+        "GravityZone Computer IP":          {"simple": "computer_ip"},
+        "GravityZone Product Installed":    {"simple": "product_installed"},
+        "GravityZone Malware Name":         {"simple": "malware_name"},
+        "GravityZone File Path":            {"simple": "file_path"},
+        "GravityZone SHA256":               {"simple": "hash"},
+        "GravityZone Detection Level":      {"simple": "detection_level"},
+        "GravityZone Infection Status":     {"simple": "final_status"},
+        "GravityZone Attack Types":         {"simple": "attack_types"}
+      }
+    },
+    "Bitdefender GravityZone Exchange Malware": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {
+        "name": {
+          "complex": {
+            "root": "malware",
+            "accessor": "0.malwareName",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "occurred":                         {"simple": "detectionTime"},
+        "GravityZone Module":               {"simple": "module"},
+        "GravityZone Company ID":           {"simple": "companyId"},
+        "GravityZone Computer ID":          {"simple": "computer_id"},
+        "GravityZone Computer Name":        {"simple": "computer_name"},
+        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
+        "GravityZone Computer IP":          {"simple": "computer_ip"},
+        "GravityZone Product Installed":    {"simple": "product_installed"},
+        "GravityZone Malware Name": {
+          "complex": {
+            "root": "malware",
+            "accessor": "0.malwareName",
+            "filters": [],
+            "transformers": []
+          }
+        }
+      }
+    },
+    "Bitdefender GravityZone EDR Incident": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {
+        "name":                             {"simple": "detection_name"},
+        "occurred":                         {"simple": "created"},
+        "severity": {
+          "complex": {
+            "root": "severity_score",
+            "filters": [],
+            "transformers": [{"operator": "MapRangeValues", "args": {
+              "map_from": {"value": {"simple": "0-49,50-79,80-100"}, "isContext": false},
+              "map_to":   {"value": {"simple": "low,medium,high"},   "isContext": false},
+              "sep":      {"isContext": false}
+            }}]
+          }
+        },
+        "dbotMirrorId":                     {"simple": "incident_id"},
+        "GravityZone Module":               {"simple": "module"},
+        "GravityZone Company ID":           {"simple": "companyId"},
+        "GravityZone Computer ID":          {"simple": "computer_id"},
+        "GravityZone Computer Name":        {"simple": "computer_name"},
+        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
+        "GravityZone Computer IP":          {"simple": "computer_ip"},
+        "GravityZone Incident ID":          {"simple": "incident_id"},
+        "GravityZone Incident Type":        {"simple": "module"},
+        "GravityZone Severity Score":       {"simple": "severity_score"},
+        "GravityZone Incident Link":        {"simple": "incident_url"},
+        "GravityZone Malware Name":         {"simple": "detection_name"},
+        "GravityZone Attack Types":         {"simple": "attack_types"}
+      }
+    },
+    "Bitdefender GravityZone XDR Incident": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {
+        "name":                             {"simple": "detection_name"},
+        "occurred":                         {"simple": "created"},
+        "severity": {
+          "complex": {
+            "root": "severity_score",
+            "filters": [],
+            "transformers": [{"operator": "MapRangeValues", "args": {
+              "map_from": {"value": {"simple": "0-49,50-79,80-100"}, "isContext": false},
+              "map_to":   {"value": {"simple": "low,medium,high"},   "isContext": false},
+              "sep":      {"isContext": false}
+            }}]
+          }
+        },
+        "dbotMirrorId":                     {"simple": "incident_id"},
+        "GravityZone Module":               {"simple": "module"},
+        "GravityZone Company ID":           {"simple": "companyId"},
+        "GravityZone Incident ID":          {"simple": "incident_id"},
+        "GravityZone Incident Type":        {"simple": "module"},
+        "GravityZone Severity Score":       {"simple": "severity_score"},
+        "GravityZone Incident Link":        {"simple": "incident_url"},
+        "GravityZone Malware Name":         {"simple": "detection_name"},
+        "GravityZone Attack Types":         {"simple": "attack_types"}
+      }
+    },
+    "Bitdefender GravityZone Network Event": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {
+        "name":                             {"simple": "module"},
+        "occurred":                         {"simple": "last_blocked"},
+        "GravityZone Module":               {"simple": "module"},
+        "GravityZone Company ID":           {"simple": "companyId"},
+        "GravityZone Computer ID":          {"simple": "computer_id"},
+        "GravityZone Computer Name":        {"simple": "computer_name"},
+        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
+        "GravityZone Computer IP":          {"simple": "computer_ip"},
+        "GravityZone Product Installed":    {"simple": "product_installed"},
+        "GravityZone URL":                  {"simple": "url"},
+        "GravityZone APH Type":             {"simple": "aph_type"},
+        "GravityZone Infection Status":     {"simple": "status"}
+      }
+    },
+    "Bitdefender GravityZone System Event": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {
+        "name":                             {"simple": "module"},
+        "GravityZone Module":               {"simple": "module"},
+        "GravityZone Company ID":           {"simple": "companyId"},
+        "GravityZone Computer ID":          {"simple": "computer_id"},
+        "GravityZone Computer Name":        {"simple": "computer_name"},
+        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
+        "GravityZone Computer IP":          {"simple": "computer_ip"},
+        "GravityZone Product Installed":    {"simple": "product_installed"}
+      }
+    },
+    "dbot_classification_incident_type_all": {
+      "dontMapEventToLabels": true,
+      "internalMapping": {}
+    }
+  }
+}

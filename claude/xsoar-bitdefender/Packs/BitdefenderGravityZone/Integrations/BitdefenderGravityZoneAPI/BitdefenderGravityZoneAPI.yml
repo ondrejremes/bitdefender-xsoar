@@ -1,0 +1,568 @@
+commonfields:
+  id: BitdefenderGravityZoneAPI
+  version: -1
+name: BitdefenderGravityZoneAPI
+display: Bitdefender GravityZone API
+category: Endpoint
+description: Integrates with Bitdefender GravityZone Public API for endpoint management, incident response, quarantine and blocklist operations.
+sectionorder:
+- Connect
+- Collect
+configuration:
+- display: GravityZone Console URL
+  name: url
+  type: 0
+  required: true
+  section: Connect
+  additionalinfo: "Base URL of your GravityZone Control Center, e.g. https://cloud.gravityzone.bitdefender.com"
+  options:
+  - https://cloud.gravityzone.bitdefender.com
+  - https://cloudgz.gravityzone.bitdefender.com
+  - https://cloudap.gravityzone.bitdefender.com
+- displaypassword: API Key
+  name: credentials
+  type: 9
+  required: true
+  hiddenusername: true
+  section: Connect
+  additionalinfo: GravityZone API key (used as HTTP Basic Auth username with empty password).
+- display: Trust any certificate (not secure)
+  name: insecure
+  type: 8
+  required: false
+  advanced: true
+  section: Connect
+- display: Use system proxy settings
+  name: proxy
+  type: 8
+  required: false
+  advanced: true
+  section: Connect
+script:
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.10.14.100715
+  isfetch: false
+  runonce: false
+  commands:
+
+  - name: bd-endpoint-list
+    description: Returns the list of managed endpoints.
+    arguments:
+    - name: parent_id
+      description: ID of the target company or group. If not specified, returns items from the company linked to the API key.
+      required: false
+    - name: is_managed
+      description: Filter managed (true) or unmanaged (false) endpoints. Leave empty for all.
+      required: false
+      auto: PREDEFINED
+      predefined:
+      - 'true'
+      - 'false'
+    - name: page
+      description: Results page number. Default is 1.
+      required: false
+    - name: per_page
+      description: Number of results per page (1-1000). Default is 30.
+      required: false
+    - name: name_filter
+      description: Filter endpoints by name (partial match supported, use * as suffix wildcard).
+      required: false
+    outputs:
+    - contextPath: Bitdefender.Endpoint.ID
+      description: Endpoint identifier.
+      type: String
+    - contextPath: Bitdefender.Endpoint.Name
+      description: Endpoint name.
+      type: String
+    - contextPath: Bitdefender.Endpoint.IP
+      description: Endpoint IP address.
+      type: String
+    - contextPath: Bitdefender.Endpoint.OS
+      description: Endpoint operating system.
+      type: String
+    - contextPath: Bitdefender.Endpoint.IsManaged
+      description: Whether the endpoint is managed.
+      type: Boolean
+    - contextPath: Bitdefender.Endpoint.GroupID
+      description: ID of the group the endpoint belongs to.
+      type: String
+    - contextPath: Bitdefender.Endpoint.CompanyID
+      description: ID of the company the endpoint belongs to.
+      type: String
+    - contextPath: Endpoint.ID
+      description: Endpoint identifier.
+      type: String
+    - contextPath: Endpoint.Hostname
+      description: Endpoint hostname.
+      type: String
+    - contextPath: Endpoint.IPAddress
+      description: Endpoint IP address.
+      type: String
+
+  - name: bd-endpoint-get
+    description: Returns detailed information about a specific managed endpoint.
+    arguments:
+    - name: endpoint_id
+      description: ID of the endpoint.
+      required: true
+    outputs:
+    - contextPath: Bitdefender.Endpoint.ID
+      description: Endpoint identifier.
+      type: String
+    - contextPath: Bitdefender.Endpoint.Name
+      description: Endpoint name.
+      type: String
+    - contextPath: Bitdefender.Endpoint.IP
+      description: Endpoint IP address.
+      type: String
+    - contextPath: Bitdefender.Endpoint.OS
+      description: Endpoint operating system.
+      type: String
+    - contextPath: Bitdefender.Endpoint.State
+      description: "Power state: 1=online, 2=offline, 3=suspended, 0=unknown."
+      type: Number
+    - contextPath: Bitdefender.Endpoint.MachineType
+      description: "Machine type: 1=computer, 2=VM, 3=EC2, 0=other."
+      type: Number
+    - contextPath: Bitdefender.Endpoint.CompanyID
+      description: Company identifier.
+      type: String
+    - contextPath: Bitdefender.Endpoint.LastSeen
+      description: Last synchronization date with Control Center.
+      type: Date
+    - contextPath: Bitdefender.Endpoint.Agent.ProductVersion
+      description: Agent product version.
+      type: String
+    - contextPath: Bitdefender.Endpoint.Agent.Licensed
+      description: "License status: 0=pending, 1=active, 2=expired, 6=none."
+      type: Number
+    - contextPath: Bitdefender.Endpoint.Agent.SignatureOutdated
+      description: Whether antimalware signatures are outdated.
+      type: Boolean
+    - contextPath: Endpoint.ID
+      description: Endpoint identifier.
+      type: String
+    - contextPath: Endpoint.Hostname
+      description: Endpoint hostname.
+      type: String
+    - contextPath: Endpoint.IPAddress
+      description: Endpoint IP address.
+      type: String
+    - contextPath: Endpoint.OS
+      description: Endpoint operating system.
+      type: String
+    - contextPath: Endpoint.Status
+      description: Endpoint status.
+      type: String
+
+  - name: bd-endpoint-isolate
+    description: Creates a task to isolate the specified endpoint from the network.
+    arguments:
+    - name: endpoint_id
+      description: ID of the endpoint to isolate.
+      required: true
+    outputs:
+    - contextPath: Bitdefender.Task.ID
+      description: Created task identifier.
+      type: String
+    - contextPath: Bitdefender.Task.EndpointID
+      description: Endpoint identifier the task was created for.
+      type: String
+    - contextPath: Bitdefender.Task.Type
+      description: Task type (Isolate).
+      type: String
+
+  - name: bd-endpoint-deisolate
+    description: Creates a task to restore the specified endpoint from isolation.
+    arguments:
+    - name: endpoint_id
+      description: ID of the endpoint to restore from isolation.
+      required: true
+    outputs:
+    - contextPath: Bitdefender.Task.ID
+      description: Created task identifier.
+      type: String
+    - contextPath: Bitdefender.Task.EndpointID
+      description: Endpoint identifier.
+      type: String
+    - contextPath: Bitdefender.Task.Type
+      description: Task type (Deisolate).
+      type: String
+
+  - name: bd-scan-create
+    description: Creates a new scan task for one or more endpoints.
+    arguments:
+    - name: target_ids
+      description: Comma-separated list of endpoint or container IDs to scan.
+      required: true
+      isArray: true
+    - name: scan_type
+      description: "Scan type: 1=quick, 2=full, 3=memory, 4=custom."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+    - name: name
+      description: Task name. Auto-generated if not provided.
+      required: false
+    - name: scan_depth
+      description: "Scan depth for custom scan: 1=aggressive, 2=normal, 3=permissive."
+      required: false
+    - name: scan_path
+      description: Comma-separated list of paths for custom scan (e.g. LocalDrives).
+      required: false
+      isArray: true
+    outputs:
+    - contextPath: Bitdefender.Task.ID
+      description: Created task identifier.
+      type: String
+    - contextPath: Bitdefender.Task.Type
+      description: Task type (Scan).
+      type: String
+
+  - name: bd-task-status
+    description: Returns the status of a given task.
+    arguments:
+    - name: task_id
+      description: ID of the task.
+      required: true
+    - name: return_subtasks
+      description: Include subtask details in the response.
+      required: false
+      auto: PREDEFINED
+      predefined:
+      - 'true'
+      - 'false'
+    outputs:
+    - contextPath: Bitdefender.Task.ID
+      description: Task identifier.
+      type: String
+    - contextPath: Bitdefender.Task.Name
+      description: Task name.
+      type: String
+    - contextPath: Bitdefender.Task.Status
+      description: "Task status: 1=Pending, 2=In progress, 3=Finished."
+      type: Number
+    - contextPath: Bitdefender.Task.Type
+      description: "Task type numeric code."
+      type: Number
+    - contextPath: Bitdefender.Task.StartDate
+      description: Task start date.
+      type: Date
+
+  - name: bd-task-delete
+    description: Deletes a scan task.
+    arguments:
+    - name: task_id
+      description: ID of the task to delete.
+      required: true
+    outputs:
+    - contextPath: Bitdefender.Task.Deleted
+      description: Whether the task was successfully deleted.
+      type: Boolean
+
+  - name: bd-incident-note-update
+    description: Assigns or updates a note on a GravityZone incident.
+    arguments:
+    - name: incident_type
+      description: "Type of incident: incidents (EDR) or extendedIncidents (XDR)."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - incidents
+      - extendedIncidents
+    - name: incident_id
+      description: GravityZone incident ID.
+      required: true
+    - name: note
+      description: Text of the note (max 50000 characters).
+      required: true
+    outputs:
+    - contextPath: Bitdefender.Incident.NoteUpdated
+      description: Whether the note was successfully updated.
+      type: Boolean
+
+  - name: bd-incident-status-change
+    description: Changes the status of a GravityZone incident.
+    arguments:
+    - name: incident_type
+      description: "Type of incident: incidents (EDR) or extendedIncidents (XDR)."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - incidents
+      - extendedIncidents
+    - name: incident_id
+      description: GravityZone incident ID.
+      required: true
+    - name: status
+      description: "New status: 1=open, 2=investigating, 3=closed, 4=false positive."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+    outputs:
+    - contextPath: Bitdefender.Incident.StatusChanged
+      description: Whether the status was successfully changed.
+      type: Boolean
+
+  - name: bd-blocklist-add
+    description: Adds one or more rules to the blocklist (hash, path or connection).
+    arguments:
+    - name: type
+      description: "Type of blocklist rule: hash, path or connection."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - hash
+      - path
+      - connection
+    - name: hash_value
+      description: File hash to block (required when type=hash).
+      required: false
+    - name: hash_algorithm
+      description: "Hash algorithm (required when type=hash): sha256 or md5."
+      required: false
+      auto: PREDEFINED
+      predefined:
+      - sha256
+      - md5
+    - name: path_value
+      description: File path to block (required when type=path).
+      required: false
+    - name: note
+      description: Optional description for the rule.
+      required: false
+    outputs:
+    - contextPath: Bitdefender.Blocklist.Added
+      description: Whether the item was successfully added to the blocklist.
+      type: Boolean
+
+  - name: bd-blocklist-get
+    description: Lists all items in the blocklist.
+    arguments:
+    - name: page
+      description: Page number. Default is 1.
+      required: false
+    - name: per_page
+      description: Items per page (1-100). Default is 30.
+      required: false
+    outputs:
+    - contextPath: Bitdefender.Blocklist.Total
+      description: Total number of blocklist items.
+      type: Number
+    - contextPath: Bitdefender.Blocklist.Items.ID
+      description: Blocklist item ID.
+      type: String
+    - contextPath: Bitdefender.Blocklist.Items.Type
+      description: Rule type (hash, application path, connection rule).
+      type: String
+    - contextPath: Bitdefender.Blocklist.Items.Created
+      description: Date the item was added.
+      type: Date
+
+  - name: bd-blocklist-remove
+    description: Removes one or more items from the blocklist by their IDs.
+    arguments:
+    - name: item_ids
+      description: Comma-separated list of blocklist item IDs to remove.
+      required: true
+      isArray: true
+    outputs:
+    - contextPath: Bitdefender.Blocklist.Removed
+      description: Whether the items were successfully removed.
+      type: Boolean
+
+  - name: bd-quarantine-list
+    description: Returns quarantined items for a company or specific endpoint.
+    arguments:
+    - name: service
+      description: "Target service: computers or exchange."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - computers
+      - exchange
+    - name: endpoint_id
+      description: Filter by endpoint ID. If omitted, returns items from the entire network.
+      required: false
+    - name: page
+      description: Page number. Default is 1.
+      required: false
+    - name: per_page
+      description: Items per page (1-100). Default is 30.
+      required: false
+    - name: threat_name
+      description: Filter by threat name (partial match).
+      required: false
+    outputs:
+    - contextPath: Bitdefender.Quarantine.Total
+      description: Total number of quarantine items.
+      type: Number
+    - contextPath: Bitdefender.Quarantine.Items.ID
+      description: Quarantine item ID.
+      type: String
+    - contextPath: Bitdefender.Quarantine.Items.ThreatName
+      description: Name of the threat.
+      type: String
+    - contextPath: Bitdefender.Quarantine.Items.FilePath
+      description: Path of the quarantined file.
+      type: String
+    - contextPath: Bitdefender.Quarantine.Items.ActionStatus
+      description: "Action status: 0=none, 1=pending remove, 2=pending restore."
+      type: Number
+
+  - name: bd-quarantine-item-remove
+    description: Creates a task to remove items from quarantine.
+    arguments:
+    - name: service
+      description: "Target service: computers or exchange."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - computers
+      - exchange
+    - name: quarantine_item_ids
+      description: Comma-separated list of quarantine item IDs to remove (max 100).
+      required: true
+      isArray: true
+    outputs:
+    - contextPath: Bitdefender.Task.ID
+      description: Created task identifier.
+      type: String
+
+  - name: bd-quarantine-item-restore
+    description: Creates a task to restore items from quarantine to their original location.
+    arguments:
+    - name: quarantine_item_ids
+      description: Comma-separated list of quarantine item IDs to restore (max 100).
+      required: true
+      isArray: true
+    - name: location_to_restore
+      description: Absolute path to restore the files to. Uses original location if not specified.
+      required: false
+    - name: add_exclusion_in_policy
+      description: Exclude restored files from future scans.
+      required: false
+      auto: PREDEFINED
+      predefined:
+      - 'true'
+      - 'false'
+    outputs:
+    - contextPath: Bitdefender.Task.ID
+      description: Created task identifier.
+      type: String
+
+  - name: bd-license-info
+    description: Returns license information for the company associated with the API key.
+    arguments: []
+    outputs:
+    - contextPath: Bitdefender.License.SubscriptionType
+      description: "Subscription type: 1=trial, 2=licensed, 3=monthly."
+      type: Number
+    - contextPath: Bitdefender.License.ExpiryDate
+      description: License expiry date.
+      type: Date
+    - contextPath: Bitdefender.License.UsedSlots
+      description: Number of used license seats.
+      type: Number
+    - contextPath: Bitdefender.License.TotalSlots
+      description: Total number of license seats.
+      type: Number
+
+  - name: bd-push-settings-get
+    description: Returns the current push event notification settings.
+    arguments: []
+    outputs:
+    - contextPath: Bitdefender.PushSettings.Status
+      description: "Push service status: 0=disabled, 1=enabled."
+      type: Number
+    - contextPath: Bitdefender.PushSettings.ServiceType
+      description: Service type (jsonRPC, splunk, cef, etc.).
+      type: String
+    - contextPath: Bitdefender.PushSettings.ServiceSettings.URL
+      description: Webhook URL.
+      type: String
+    - contextPath: Bitdefender.PushSettings.SubscribedEventTypes
+      description: List of subscribed event types.
+      type: String
+
+  - name: bd-push-settings-set
+    description: Configures push event notification settings for GravityZone to send events to a webhook.
+    arguments:
+    - name: status
+      description: "0=disabled, 1=enabled."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - '0'
+      - '1'
+    - name: service_type
+      description: "Target service type: jsonRPC, splunk, cef, qradar, azuresentinel."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - jsonRPC
+      - splunk
+      - cef
+      - qradar
+      - azuresentinel
+    - name: url
+      description: Webhook URL where GravityZone will send push events.
+      required: true
+    - name: authorization
+      description: Authorization header value sent with each push request (e.g. Bearer <token>).
+      required: false
+    - name: require_valid_ssl
+      description: Validate the SSL certificate of the webhook endpoint.
+      required: false
+      auto: PREDEFINED
+      predefined:
+      - 'true'
+      - 'false'
+    - name: subscribe_all
+      description: Subscribe to all available event types.
+      required: false
+      auto: PREDEFINED
+      predefined:
+      - 'true'
+      - 'false'
+    outputs:
+    - contextPath: Bitdefender.PushSettings.Updated
+      description: Whether the push settings were successfully updated.
+      type: Boolean
+
+  - name: bd-push-test
+    description: Sends a test push event to verify the webhook configuration.
+    arguments:
+    - name: event_type
+      description: Type of event to send as test.
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - av
+      - aph
+      - fw
+      - modules
+      - new-incident
+      - new-extended-incident
+      - registration
+      - network-sandboxing
+      - antiexploit
+      - ransomware-mitigation
+    outputs:
+    - contextPath: Bitdefender.PushTest.Success
+      description: Whether the test event was sent successfully.
+      type: Boolean
+
+fromversion: 6.0.0
+defaultclassifier: Bitdefender GravityZone - Classifier
+defaultmapperin: Bitdefender GravityZone - Incoming Mapper

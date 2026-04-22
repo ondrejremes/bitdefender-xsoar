@@ -1,0 +1,5 @@
+[file:README.md]
+ignore_errors=IM001
+
+[file:BitdefenderGravityZoneAPI/README.md]
+ignore_errors=IM001
