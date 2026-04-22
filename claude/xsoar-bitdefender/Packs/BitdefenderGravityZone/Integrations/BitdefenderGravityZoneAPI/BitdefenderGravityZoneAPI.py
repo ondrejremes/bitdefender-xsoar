@@ -611,6 +611,13 @@ def bd_push_settings_get_command(client: GravityZoneClient) -> CommandResults:
 
 
 def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> CommandResults:
+    webhook_url = args['url']
+    if not webhook_url.lower().startswith('https://'):
+        raise DemistoException(
+            'GravityZone requires the webhook URL to use HTTPS (TLS 1.2+). '
+            f'Provided URL uses plain HTTP: {webhook_url}\n'
+            'Configure a reverse proxy (e.g. Traefik/nginx) with a valid TLS certificate in front of your XSOAR instance.'
+        )
     require_ssl: bool | None = None
     if args.get('require_valid_ssl') is not None:
         require_ssl = argToBoolean(args['require_valid_ssl'])
@@ -619,7 +626,7 @@ def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> Comma
     result = _wrap_push_call(lambda: client.set_push_settings(
         status=arg_to_number(args['status']),
         service_type=args['service_type'],
-        url=args['url'],
+        url=webhook_url,
         authorization=args.get('authorization'),
         require_valid_ssl=require_ssl,
         subscribe_all=subscribe_all,
