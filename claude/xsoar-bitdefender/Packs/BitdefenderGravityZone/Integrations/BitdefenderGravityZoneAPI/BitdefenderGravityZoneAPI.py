@@ -115,24 +115,24 @@ class GravityZoneClient(BaseClient):
     # ── Quarantine ──────────────────────────────────────────────────────────
 
     def get_quarantine_items(self, service: str, endpoint_id=None, page=1, per_page=30, threat_name=None):
-        params: dict = {'service': service, 'page': page, 'perPage': per_page}
+        params: dict = {'page': page, 'perPage': per_page}
         if endpoint_id:
             params['endpointId'] = endpoint_id
         if threat_name:
             params['filters'] = {'threatName': threat_name}
-        return self._call('quarantine', 'getQuarantineItemsList', self._with_company(params))
+        return self._call(f'quarantine/{service}', 'getQuarantineItemsList', self._with_company(params))
 
     def remove_quarantine_items(self, service: str, item_ids: list):
-        return self._call('quarantine', 'createRemoveQuarantineItemTask',
-                          self._with_company({'service': service, 'quarantineItemsIds': item_ids}))
+        return self._call(f'quarantine/{service}', 'createRemoveQuarantineItemTask',
+                          self._with_company({'quarantineItemsIds': item_ids}))
 
-    def restore_quarantine_items(self, item_ids: list, location=None, add_exclusion=False):
+    def restore_quarantine_items(self, service: str, item_ids: list, location=None, add_exclusion=False):
         params: dict = {'quarantineItemsIds': item_ids}
         if location:
             params['locationToRestore'] = location
         if add_exclusion:
             params['addExclusionInPolicy'] = True
-        return self._call('quarantine', 'createRestoreQuarantineItemTask', self._with_company(params))
+        return self._call(f'quarantine/{service}', 'createRestoreQuarantineItemTask', self._with_company(params))
 
     # ── Accounts (partner/reseller only) ────────────────────────────────────
 
@@ -518,6 +518,7 @@ def bd_quarantine_item_restore_command(client: GravityZoneClient, args: dict) ->
     item_ids = argToList(args['quarantine_item_ids'])
     add_exclusion = argToBoolean(args.get('add_exclusion_in_policy', 'false'))
     result = client.restore_quarantine_items(
+        service=args['service'],
         item_ids=item_ids,
         location=args.get('location_to_restore'),
         add_exclusion=add_exclusion,

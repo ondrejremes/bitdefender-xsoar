@@ -450,6 +450,13 @@ script:
   - name: bd-quarantine-item-restore
     description: Creates a task to restore items from quarantine to their original location.
     arguments:
+    - name: service
+      description: "Target service: computers or exchange."
+      required: true
+      auto: PREDEFINED
+      predefined:
+      - computers
+      - exchange
     - name: quarantine_item_ids
       description: Comma-separated list of quarantine item IDs to restore (max 100).
       required: true

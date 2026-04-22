@@ -237,7 +237,7 @@ class TestQuarantine:
 
     def test_restore_returns_task(self, client):
         mock_call(client, {'taskId': 'qtask-2'})
-        result = bd_quarantine_item_restore_command(client, {'quarantine_item_ids': 'q1'})
+        result = bd_quarantine_item_restore_command(client, {'service': 'computers', 'quarantine_item_ids': 'q1'})
         assert result.outputs['ID'] == 'qtask-2'
 
 
