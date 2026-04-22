@@ -27,6 +27,13 @@ configuration:
   hiddenusername: true
   section: Connect
   additionalinfo: GravityZone API key (used as HTTP Basic Auth username with empty password).
+- display: Company ID (partner/reseller accounts only)
+  name: company_id
+  type: 0
+  required: false
+  advanced: true
+  section: Connect
+  additionalinfo: "GravityZone company ID to scope API calls to a specific managed company. Required for partner/reseller API keys when managing multiple companies (push settings, quarantine, blocklist, license info)."
 - display: Trust any certificate (not secure)
   name: insecure
   type: 8
@@ -461,23 +468,6 @@ script:
     - contextPath: Bitdefender.Task.ID
       description: Created task identifier.
       type: String
-
-  - name: bd-license-info
-    description: Returns license information for the company associated with the API key.
-    arguments: []
-    outputs:
-    - contextPath: Bitdefender.License.SubscriptionType
-      description: "Subscription type: 1=trial, 2=licensed, 3=monthly."
-      type: Number
-    - contextPath: Bitdefender.License.ExpiryDate
-      description: License expiry date.
-      type: Date
-    - contextPath: Bitdefender.License.UsedSlots
-      description: Number of used license seats.
-      type: Number
-    - contextPath: Bitdefender.License.TotalSlots
-      description: Total number of license seats.
-      type: Number
 
   - name: bd-push-settings-get
     description: Returns the current push event notification settings.

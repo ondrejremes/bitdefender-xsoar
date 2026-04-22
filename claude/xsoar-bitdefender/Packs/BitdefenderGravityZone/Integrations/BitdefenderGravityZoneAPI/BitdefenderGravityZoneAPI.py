@@ -6,7 +6,7 @@ API_VERSION = 'v1.0'
 
 
 class GravityZoneClient(BaseClient):
-    def __init__(self, base_url: str, api_key: str, verify: bool, proxy: bool):
+    def __init__(self, base_url: str, api_key: str, verify: bool, proxy: bool, company_id: str | None = None):
         # Normalize: strip trailing slash and any trailing /api suffix so we always add it ourselves
         normalized = base_url.rstrip('/')
         if normalized.endswith('/api'):
@@ -17,6 +17,13 @@ class GravityZoneClient(BaseClient):
             proxy=proxy,
             auth=(api_key, ''),
         )
+        self.company_id = company_id or None
+
+    def _with_company(self, params: dict) -> dict:
+        if self.company_id:
+            params = dict(params)
+            params['companyId'] = self.company_id
+        return params
 
     def _call(self, namespace: str, method: str, params: dict | None = None) -> Any:
         payload = {
@@ -28,7 +35,10 @@ class GravityZoneClient(BaseClient):
         response = self._http_request('POST', f'/api/{API_VERSION}/jsonrpc/{namespace}', json_data=payload)
         if 'error' in response:
             err = response['error']
-            raise DemistoException(f'GravityZone API error [{err.get("code")}]: {err.get("message", err)}')
+            msg = err.get('message', str(err))
+            data = err.get('data')
+            detail = f' — {data}' if data else ''
+            raise DemistoException(f'GravityZone API error [{err.get("code")}]: {msg}{detail}')
         return response.get('result')
 
     # ── Network ─────────────────────────────────────────────────────────────
@@ -94,13 +104,13 @@ class GravityZoneClient(BaseClient):
             rule['pathValue'] = path_value
         if note:
             rule['note'] = note
-        return self._call('integrations', 'addToBlocklist', {'rules': [rule]})
+        return self._call('integrations', 'addToBlocklist', self._with_company({'rules': [rule]}))
 
     def get_blocklist(self, page=1, per_page=30):
-        return self._call('integrations', 'getBlocklistItems', {'page': page, 'perPage': per_page})
+        return self._call('integrations', 'getBlocklistItems', self._with_company({'page': page, 'perPage': per_page}))
 
     def remove_from_blocklist(self, item_ids: list):
-        return self._call('integrations', 'removeFromBlocklist', {'itemIds': item_ids})
+        return self._call('integrations', 'removeFromBlocklist', self._with_company({'itemIds': item_ids}))
 
     # ── Quarantine ──────────────────────────────────────────────────────────
 
@@ -110,11 +120,11 @@ class GravityZoneClient(BaseClient):
             params['endpointId'] = endpoint_id
         if threat_name:
             params['filters'] = {'threatName': threat_name}
-        return self._call('quarantine', 'getQuarantineItemsList', params)
+        return self._call('quarantine', 'getQuarantineItemsList', self._with_company(params))
 
     def remove_quarantine_items(self, service: str, item_ids: list):
         return self._call('quarantine', 'createRemoveQuarantineItemTask',
-                          {'service': service, 'quarantineItemsIds': item_ids})
+                          self._with_company({'service': service, 'quarantineItemsIds': item_ids}))
 
     def restore_quarantine_items(self, item_ids: list, location=None, add_exclusion=False):
         params: dict = {'quarantineItemsIds': item_ids}
@@ -122,17 +132,17 @@ class GravityZoneClient(BaseClient):
             params['locationToRestore'] = location
         if add_exclusion:
             params['addExclusionInPolicy'] = True
-        return self._call('quarantine', 'createRestoreQuarantineItemTask', params)
+        return self._call('quarantine', 'createRestoreQuarantineItemTask', self._with_company(params))
 
-    # ── License (accounts namespace) ─────────────────────────────────────────
+    # ── Accounts (partner/reseller only) ────────────────────────────────────
 
     def get_license_info(self):
-        return self._call('accounts', 'getLicenseInfo', {})
+        return self._call('accounts', 'getLicenseInfo', self._with_company({}))
 
     # ── Push notifications ───────────────────────────────────────────────────
 
     def get_push_settings(self):
-        return self._call('push', 'getPushEventSettings', {})
+        return self._call('push', 'getPushEventSettings', self._with_company({}))
 
     def set_push_settings(self, status: int, service_type: str, url: str,
                           authorization=None, require_valid_ssl=None, subscribe_all=False):
@@ -148,10 +158,10 @@ class GravityZoneClient(BaseClient):
         }
         if subscribe_all:
             params['subscribeToAllEventTypes'] = True
-        return self._call('push', 'setPushEventSettings', params)
+        return self._call('push', 'setPushEventSettings', self._with_company(params))
 
     def send_test_push(self, event_type: str):
-        return self._call('push', 'sendTestPushEvent', {'eventType': event_type})
+        return self._call('push', 'sendTestPushEvent', self._with_company({'eventType': event_type}))
 
 
 # ── Command implementations ──────────────────────────────────────────────────
@@ -525,7 +535,15 @@ def bd_quarantine_item_restore_command(client: GravityZoneClient, args: dict) ->
 
 
 def bd_license_info_command(client: GravityZoneClient) -> CommandResults:
-    result = client.get_license_info()
+    try:
+        result = client.get_license_info()
+    except DemistoException as e:
+        if '[-32601]' in str(e):
+            raise DemistoException(
+                f'{e}\n\nNote: getLicenseInfo is only available for partner/reseller API keys, '
+                'not for standard company API keys.'
+            )
+        raise
     output = {
         'SubscriptionType': (result or {}).get('subscriptionType'),
         'ExpiryDate': (result or {}).get('expiryDate'),
@@ -541,8 +559,23 @@ def bd_license_info_command(client: GravityZoneClient) -> CommandResults:
     )
 
 
+PUSH_NOT_AVAILABLE = (
+    'Push Notification Service is not available on this account. '
+    'Enable it in GravityZone Control Center under My Company → Integrations.'
+)
+
+
+def _wrap_push_call(fn):
+    try:
+        return fn()
+    except DemistoException as e:
+        if '[-32000]' in str(e):
+            raise DemistoException(f'{e}\n\nNote: {PUSH_NOT_AVAILABLE}')
+        raise
+
+
 def bd_push_settings_get_command(client: GravityZoneClient) -> CommandResults:
-    result = client.get_push_settings()
+    result = _wrap_push_call(client.get_push_settings)
     settings = (result or {}).get('serviceSettings', {})
     output = {
         'Status': (result or {}).get('status'),
@@ -569,14 +602,14 @@ def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> Comma
         require_ssl = argToBoolean(args['require_valid_ssl'])
     subscribe_all = argToBoolean(args.get('subscribe_all', 'false'))
 
-    result = client.set_push_settings(
+    result = _wrap_push_call(lambda: client.set_push_settings(
         status=arg_to_number(args['status']),
         service_type=args['service_type'],
         url=args['url'],
         authorization=args.get('authorization'),
         require_valid_ssl=require_ssl,
         subscribe_all=subscribe_all,
-    )
+    ))
     updated = result is True or result == {}
     output = {'Updated': updated}
     readable = f'Push notification settings {"updated successfully" if updated else "could not be updated"}.'
@@ -590,7 +623,7 @@ def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> Comma
 
 def bd_push_test_command(client: GravityZoneClient, args: dict) -> CommandResults:
     event_type = args['event_type']
-    result = client.send_test_push(event_type)
+    result = _wrap_push_call(lambda: client.send_test_push(event_type))
     success = result is True or result == {}
     output = {'Success': success}
     readable = f'Test push event `{event_type}` {"sent successfully" if success else "failed"}.'
@@ -613,8 +646,9 @@ def main() -> None:
     api_key = params.get('credentials', {}).get('password', '')
     verify = not params.get('insecure', False)
     proxy = params.get('proxy', False)
+    company_id = params.get('company_id') or None
 
-    client = GravityZoneClient(base_url, api_key, verify, proxy)
+    client = GravityZoneClient(base_url, api_key, verify, proxy, company_id=company_id)
 
     try:
         if command == 'test-module':
