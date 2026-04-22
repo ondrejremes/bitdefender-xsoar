@@ -28,11 +28,18 @@
         "GravityZone Computer IP":          {"simple": "computer_ip"},
         "GravityZone Product Installed":    {"simple": "product_installed"},
         "GravityZone Malware Name":         {"simple": "malware_name"},
+        "GravityZone Malware Type":         {"simple": "malware_type"},
         "GravityZone File Path":            {"simple": "file_path"},
         "GravityZone SHA256":               {"simple": "hash"},
         "GravityZone Detection Level":      {"simple": "detection_level"},
         "GravityZone Infection Status":     {"simple": "final_status"},
-        "GravityZone Attack Types":         {"simple": "attack_types"}
+        "GravityZone Action Taken":         {"simple": "main_action"},
+        "GravityZone Attack Types":         {"simple": "attack_types"},
+        "GravityZone Process Path":         {"simple": "process_path"},
+        "GravityZone Parent Process Path":  {"simple": "parent_process_path"},
+        "GravityZone Exploit Technique":    {"simple": "exploit_type"},
+        "GravityZone Source IP":            {"simple": "attack_source"},
+        "GravityZone MITRE ATT&CK":         {"simple": "att_ck_id"}
       }
     },
     "Bitdefender GravityZone Exchange Malware": {
@@ -50,7 +57,7 @@
         "GravityZone Module":               {"simple": "module"},
         "GravityZone Company ID":           {"simple": "companyId"},
         "GravityZone Computer ID":          {"simple": "computer_id"},
-        "GravityZone Computer Name":        {"simple": "computer_name"},
+        "GravityZone Computer Name":        {"simple": "serverName"},
         "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
         "GravityZone Computer IP":          {"simple": "computer_ip"},
         "GravityZone Product Installed":    {"simple": "product_installed"},
@@ -61,7 +68,34 @@
             "filters": [],
             "transformers": []
           }
-        }
+        },
+        "GravityZone Malware Type": {
+          "complex": {
+            "root": "malware",
+            "accessor": "0.malwareType",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Action Taken": {
+          "complex": {
+            "root": "malware",
+            "accessor": "0.actionTaken",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone File Path": {
+          "complex": {
+            "root": "malware",
+            "accessor": "0.infectedObject",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Email Sender":         {"simple": "sender"},
+        "GravityZone Email Recipients":     {"simple": "recipients"},
+        "GravityZone Email Subject":        {"simple": "subject"}
       }
     },
     "Bitdefender GravityZone EDR Incident": {
@@ -92,7 +126,10 @@
         "GravityZone Severity Score":       {"simple": "severity_score"},
         "GravityZone Incident Link":        {"simple": "incident_url"},
         "GravityZone Malware Name":         {"simple": "detection_name"},
-        "GravityZone Attack Types":         {"simple": "attack_types"}
+        "GravityZone Attack Types":         {"simple": "attack_types"},
+        "GravityZone Process Path":         {"simple": "detection_path"},
+        "GravityZone Parent Process Path":  {"simple": "detection_parentPath"},
+        "GravityZone MITRE ATT&CK":         {"simple": "att_ck_id"}
       }
     },
     "Bitdefender GravityZone XDR Incident": {
@@ -119,7 +156,10 @@
         "GravityZone Severity Score":       {"simple": "severity_score"},
         "GravityZone Incident Link":        {"simple": "incident_url"},
         "GravityZone Malware Name":         {"simple": "detection_name"},
-        "GravityZone Attack Types":         {"simple": "attack_types"}
+        "GravityZone Attack Types":         {"simple": "attack_types"},
+        "GravityZone Process Path":         {"simple": "detection_path"},
+        "GravityZone Parent Process Path":  {"simple": "detection_parentPath"},
+        "GravityZone MITRE ATT&CK":         {"simple": "att_ck_id"}
       }
     },
     "Bitdefender GravityZone Network Event": {
@@ -136,13 +176,18 @@
         "GravityZone Product Installed":    {"simple": "product_installed"},
         "GravityZone URL":                  {"simple": "url"},
         "GravityZone APH Type":             {"simple": "aph_type"},
-        "GravityZone Infection Status":     {"simple": "status"}
+        "GravityZone Infection Status":     {"simple": "status"},
+        "GravityZone Application Path":     {"simple": "application_path"},
+        "GravityZone Source IP":            {"simple": "source_ip"},
+        "GravityZone Local Port":           {"simple": "local_port"},
+        "GravityZone Malware Name":         {"simple": "detection_threatName"}
       }
     },
     "Bitdefender GravityZone System Event": {
       "dontMapEventToLabels": true,
       "internalMapping": {
         "name":                             {"simple": "module"},
+        "occurred":                         {"simple": "timestamp"},
         "GravityZone Module":               {"simple": "module"},
         "GravityZone Company ID":           {"simple": "companyId"},
         "GravityZone Computer ID":          {"simple": "computer_id"},
