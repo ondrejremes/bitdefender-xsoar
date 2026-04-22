@@ -158,7 +158,7 @@ class GravityZoneClient(BaseClient):
         }
         if subscribe_all:
             params['subscribeToAllEventTypes'] = True
-        return self._call('push', 'setPushEventSettings', params)
+        return self._call('push', 'setPushEventSettings', self._with_company(params))
 
     def send_test_push(self, event_type: str):
         return self._call('push', 'sendTestPushEvent', {'eventType': event_type})
