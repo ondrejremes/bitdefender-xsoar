@@ -14,11 +14,12 @@ configuration:
   type: 0
   required: true
   section: Connect
-  additionalinfo: "Base URL of your GravityZone Control Center, e.g. https://cloud.gravityzone.bitdefender.com"
+  additionalinfo: "Base URL of your GravityZone Control Center without /api suffix, e.g. https://cloud.gravityzone.bitdefender.com"
   options:
   - https://cloud.gravityzone.bitdefender.com
   - https://cloudgz.gravityzone.bitdefender.com
   - https://cloudap.gravityzone.bitdefender.com
+  - https://cloudgz.gravityzone.bitdefender.com/api
 - displaypassword: API Key
   name: credentials
   type: 9

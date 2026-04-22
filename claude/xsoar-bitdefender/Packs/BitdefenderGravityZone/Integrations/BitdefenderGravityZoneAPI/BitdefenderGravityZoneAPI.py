@@ -7,8 +7,12 @@ API_VERSION = 'v1.0'
 
 class GravityZoneClient(BaseClient):
     def __init__(self, base_url: str, api_key: str, verify: bool, proxy: bool):
+        # Normalize: strip trailing slash and any trailing /api suffix so we always add it ourselves
+        normalized = base_url.rstrip('/')
+        if normalized.endswith('/api'):
+            normalized = normalized[:-4]
         super().__init__(
-            base_url=base_url.rstrip('/'),
+            base_url=normalized,
             verify=verify,
             proxy=proxy,
             auth=(api_key, ''),
@@ -21,7 +25,7 @@ class GravityZoneClient(BaseClient):
             'id': str(uuid.uuid4()),
             'params': params or {},
         }
-        response = self._http_request('POST', f'/{API_VERSION}/jsonrpc/{namespace}', json_data=payload)
+        response = self._http_request('POST', f'/api/{API_VERSION}/jsonrpc/{namespace}', json_data=payload)
         if 'error' in response:
             err = response['error']
             raise DemistoException(f'GravityZone API error [{err.get("code")}]: {err.get("message", err)}')
@@ -153,7 +157,7 @@ class GravityZoneClient(BaseClient):
 # ── Command implementations ──────────────────────────────────────────────────
 
 def test_module(client: GravityZoneClient) -> str:
-    client.get_license_info()
+    client.get_endpoints_list(per_page=1)
     return 'ok'
 
 
