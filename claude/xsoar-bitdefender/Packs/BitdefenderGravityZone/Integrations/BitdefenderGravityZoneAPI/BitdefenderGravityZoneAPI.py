@@ -142,7 +142,7 @@ class GravityZoneClient(BaseClient):
     # ── Push notifications ───────────────────────────────────────────────────
 
     def get_push_settings(self):
-        return self._call('push', 'getPushEventSettings', self._with_company({}))
+        return self._call('push', 'getPushEventSettings', {})
 
     def set_push_settings(self, status: int, service_type: str, url: str,
                           authorization=None, require_valid_ssl=None, subscribe_all=False):
@@ -158,10 +158,10 @@ class GravityZoneClient(BaseClient):
         }
         if subscribe_all:
             params['subscribeToAllEventTypes'] = True
-        return self._call('push', 'setPushEventSettings', self._with_company(params))
+        return self._call('push', 'setPushEventSettings', params)
 
     def send_test_push(self, event_type: str):
-        return self._call('push', 'sendTestPushEvent', self._with_company({'eventType': event_type}))
+        return self._call('push', 'sendTestPushEvent', {'eventType': event_type})
 
 
 # ── Command implementations ──────────────────────────────────────────────────
