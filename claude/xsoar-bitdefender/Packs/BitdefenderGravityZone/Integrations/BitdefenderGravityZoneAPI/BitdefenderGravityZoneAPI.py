@@ -645,9 +645,13 @@ def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> Comma
 def bd_push_test_command(client: GravityZoneClient, args: dict) -> CommandResults:
     event_type = args['event_type']
     result = _wrap_push_call(lambda: client.send_test_push(event_type))
-    success = result is True or result == {}
-    output = {'Success': success}
-    readable = f'Test push event `{event_type}` {"sent successfully" if success else "failed"}.'
+    success = result is True or result is None or result == {} or result == 'true'
+    if success:
+        readable = f'Test push event `{event_type}` sent successfully.'
+    else:
+        detail = result if result else 'no detail returned'
+        readable = f'Test push event `{event_type}` failed.\n\nResponse: {detail}'
+    output = {'Success': success, 'Detail': result}
     return CommandResults(
         outputs_prefix='Bitdefender.PushTest',
         outputs=output,
