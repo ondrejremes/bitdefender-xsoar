@@ -55,6 +55,32 @@ script:
   runonce: false
   commands:
 
+  - name: bd-companies-list
+    description: Returns the list of companies under a parent company or folder.
+    arguments:
+    - name: parent_id
+      description: ID of the parent company or folder. If not specified, uses the Company ID from integration settings.
+      required: false
+    - name: page
+      description: Results page number. Default is 1.
+      required: false
+    - name: per_page
+      description: Number of results per page (1-100). Default is 100.
+      required: false
+    outputs:
+    - contextPath: Bitdefender.Company.ID
+      description: Company identifier.
+      type: String
+    - contextPath: Bitdefender.Company.Name
+      description: Company name.
+      type: String
+    - contextPath: Bitdefender.Company.Type
+      description: Company type.
+      type: String
+    - contextPath: Bitdefender.Company.ParentID
+      description: Parent company or folder identifier.
+      type: String
+
   - name: bd-endpoint-list
     description: Returns the list of managed endpoints.
     arguments:

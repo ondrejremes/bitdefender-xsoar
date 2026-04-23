@@ -54,6 +54,12 @@ class GravityZoneClient(BaseClient):
 
     # ── Network ─────────────────────────────────────────────────────────────
 
+    def get_companies_list(self, parent_id=None, page=1, per_page=100):
+        params: dict = {'page': page, 'perPage': per_page}
+        if parent_id:
+            params['parentId'] = parent_id
+        return self._call('network', 'getCompaniesList', self._with_company(params))
+
     def get_endpoints_list(self, parent_id=None, is_managed=None, page=1, per_page=30, name_filter=None):
         params: dict = {'page': page, 'perPage': per_page}
         if parent_id:
@@ -191,6 +197,33 @@ def _readable_bool_result(action: str, result) -> str:
 def test_module(client: GravityZoneClient) -> str:
     client.get_endpoints_list(per_page=1)
     return 'ok'
+
+
+def bd_companies_list_command(client: GravityZoneClient, args: dict) -> CommandResults:
+    page = arg_to_number(args.get('page')) or 1
+    per_page = arg_to_number(args.get('per_page')) or 100
+    result = client.get_companies_list(
+        parent_id=args.get('parent_id'),
+        page=page,
+        per_page=per_page,
+    )
+    items = (result or {}).get('items', [])
+    outputs = [{
+        'ID': c.get('id'),
+        'Name': c.get('name'),
+        'Type': c.get('type'),
+        'ParentID': c.get('parentId'),
+    } for c in items]
+    readable = tableToMarkdown('GravityZone Companies', outputs,
+                               headers=['ID', 'Name', 'Type', 'ParentID'],
+                               removeNull=True)
+    return CommandResults(
+        outputs_prefix='Bitdefender.Company',
+        outputs_key_field='ID',
+        outputs=outputs,
+        readable_output=readable,
+        raw_response=result,
+    )
 
 
 def bd_endpoint_list_command(client: GravityZoneClient, args: dict) -> list:
@@ -689,6 +722,8 @@ def main() -> None:
     try:
         if command == 'test-module':
             return_results(test_module(client))
+        elif command == 'bd-companies-list':
+            return_results(bd_companies_list_command(client, args))
         elif command == 'bd-endpoint-list':
             return_results(bd_endpoint_list_command(client, args))
         elif command == 'bd-endpoint-get':
