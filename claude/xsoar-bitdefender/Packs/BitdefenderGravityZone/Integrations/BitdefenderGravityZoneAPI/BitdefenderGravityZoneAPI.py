@@ -195,7 +195,7 @@ def test_module(client: GravityZoneClient) -> str:
 
 def bd_endpoint_list_command(client: GravityZoneClient, args: dict) -> list:
     page = arg_to_number(args.get('page')) or 1
-    per_page = arg_to_number(args.get('per_page')) or 1000
+    per_page = arg_to_number(args.get('per_page')) or 100
     is_managed_raw = args.get('is_managed')
     is_managed: bool | None = argToBoolean(is_managed_raw) if is_managed_raw is not None else True
 

@@ -72,7 +72,7 @@ script:
       description: Results page number. Default is 1.
       required: false
     - name: per_page
-      description: Number of results per page (1-1000). Default is 1000.
+      description: Number of results per page (1-100). Default is 100.
       required: false
     - name: name_filter
       description: Filter endpoints by name (partial match supported, use * as suffix wildcard).
