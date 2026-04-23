@@ -180,7 +180,7 @@ class GravityZoneClient(BaseClient):
 # ── Command implementations ──────────────────────────────────────────────────
 
 def _is_success(result) -> bool:
-    return result is True or result is None or result == {} or result == 'true'
+    return result is not False and result != 'false'
 
 
 def _readable_bool_result(action: str, result) -> str:
