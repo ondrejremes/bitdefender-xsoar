@@ -64,7 +64,6 @@ script:
     - name: is_managed
       description: Filter managed (true) or unmanaged (false) endpoints. Default is true.
       required: false
-      default: true
       auto: PREDEFINED
       predefined:
       - 'true'
@@ -72,11 +71,9 @@ script:
     - name: page
       description: Results page number. Default is 1.
       required: false
-      default: 1
     - name: per_page
       description: Number of results per page (1-1000). Default is 1000.
       required: false
-      default: 1000
     - name: name_filter
       description: Filter endpoints by name (partial match supported, use * as suffix wildcard).
       required: false

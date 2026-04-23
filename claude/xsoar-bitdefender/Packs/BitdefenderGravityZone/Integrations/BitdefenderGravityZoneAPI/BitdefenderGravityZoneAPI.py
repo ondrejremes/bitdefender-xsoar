@@ -199,8 +199,10 @@ def bd_endpoint_list_command(client: GravityZoneClient, args: dict) -> list:
     is_managed_raw = args.get('is_managed')
     is_managed: bool | None = argToBoolean(is_managed_raw) if is_managed_raw is not None else True
 
+    parent_id = args.get('parent_id') or client.company_id or None
+
     result = client.get_endpoints_list(
-        parent_id=args.get('parent_id'),
+        parent_id=parent_id,
         is_managed=is_managed,
         page=page,
         per_page=per_page,
