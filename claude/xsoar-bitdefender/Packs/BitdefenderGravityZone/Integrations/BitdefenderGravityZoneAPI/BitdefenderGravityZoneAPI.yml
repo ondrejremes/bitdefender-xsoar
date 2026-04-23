@@ -59,13 +59,7 @@ script:
     description: Returns the list of companies under a parent company or folder.
     arguments:
     - name: parent_id
-      description: ID of the parent company or folder. If not specified, uses the Company ID from integration settings.
-      required: false
-    - name: page
-      description: Results page number. Default is 1.
-      required: false
-    - name: per_page
-      description: Number of results per page (1-100). Default is 100.
+      description: ID of the parent company or folder. If not specified, returns companies under the root of the account.
       required: false
     outputs:
     - contextPath: Bitdefender.Company.ID

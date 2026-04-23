@@ -54,11 +54,11 @@ class GravityZoneClient(BaseClient):
 
     # ── Network ─────────────────────────────────────────────────────────────
 
-    def get_companies_list(self, parent_id=None, page=1, per_page=100):
-        params: dict = {'page': page, 'perPage': per_page}
+    def get_companies_list(self, parent_id=None):
+        params: dict = {}
         if parent_id:
             params['parentId'] = parent_id
-        return self._call('network', 'getCompaniesList', self._with_company(params))
+        return self._call('network', 'getCompaniesList', params)
 
     def get_endpoints_list(self, parent_id=None, is_managed=None, page=1, per_page=30, name_filter=None):
         params: dict = {'page': page, 'perPage': per_page}
@@ -200,13 +200,7 @@ def test_module(client: GravityZoneClient) -> str:
 
 
 def bd_companies_list_command(client: GravityZoneClient, args: dict) -> CommandResults:
-    page = arg_to_number(args.get('page')) or 1
-    per_page = arg_to_number(args.get('per_page')) or 100
-    result = client.get_companies_list(
-        parent_id=args.get('parent_id'),
-        page=page,
-        per_page=per_page,
-    )
+    result = client.get_companies_list(parent_id=args.get('parent_id'))
     items = (result or {}).get('items', [])
     outputs = [{
         'ID': c.get('id'),
