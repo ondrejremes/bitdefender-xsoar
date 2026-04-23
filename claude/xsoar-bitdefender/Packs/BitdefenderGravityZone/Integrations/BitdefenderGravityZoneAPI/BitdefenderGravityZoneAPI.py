@@ -201,7 +201,7 @@ def test_module(client: GravityZoneClient) -> str:
 
 def bd_companies_list_command(client: GravityZoneClient, args: dict) -> CommandResults:
     result = client.get_companies_list(parent_id=args.get('parent_id'))
-    items = (result or {}).get('items', [])
+    items = result if isinstance(result, list) else (result or {}).get('items', [])
     outputs = [{
         'ID': c.get('id'),
         'Name': c.get('name'),
