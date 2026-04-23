@@ -592,7 +592,12 @@ def _wrap_push_call(fn):
     try:
         return fn()
     except DemistoException as e:
-        if '[-32000]' in str(e):
+        msg = str(e)
+        if '[-32000]' in msg and 'Event template not found' in msg:
+            raise DemistoException(
+                f'{e}\n\nNote: This event type is not available on this GravityZone account.'
+            )
+        if '[-32000]' in msg:
             raise DemistoException(f'{e}\n\nNote: {PUSH_NOT_AVAILABLE}')
         raise
 
