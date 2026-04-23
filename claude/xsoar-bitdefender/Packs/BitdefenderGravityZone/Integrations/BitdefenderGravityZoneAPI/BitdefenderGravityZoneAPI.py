@@ -58,10 +58,15 @@ class GravityZoneClient(BaseClient):
         params: dict = {'page': page, 'perPage': per_page}
         if parent_id:
             params['parentId'] = parent_id
-        if is_managed is not None:
-            params['isManaged'] = is_managed
+        filters: dict = {}
+        if is_managed is True:
+            filters['security'] = {'management': {'managedWithBest': True, 'managedRelays': True}}
+        elif is_managed is False:
+            filters['security'] = {'management': {'unmanaged': True}}
         if name_filter:
-            params['filters'] = {'name': name_filter}
+            filters['name'] = name_filter
+        if filters:
+            params['filters'] = filters
         return self._call('network', 'getEndpointsList', params)
 
     def get_endpoint_details(self, endpoint_id: str):
