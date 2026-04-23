@@ -179,6 +179,15 @@ class GravityZoneClient(BaseClient):
 
 # ── Command implementations ──────────────────────────────────────────────────
 
+def _is_success(result) -> bool:
+    return result is True or result is None or result == {} or result == 'true'
+
+
+def _readable_bool_result(action: str, result) -> str:
+    if _is_success(result):
+        return f'{action} successfully.'
+    return f'{action} failed.\n\nResponse: {result}'
+
 def test_module(client: GravityZoneClient) -> str:
     client.get_endpoints_list(per_page=1)
     return 'ok'
@@ -379,9 +388,9 @@ def bd_task_status_command(client: GravityZoneClient, args: dict) -> CommandResu
 def bd_task_delete_command(client: GravityZoneClient, args: dict) -> CommandResults:
     task_id = args['task_id']
     result = client.delete_scan_task(task_id)
-    deleted = result is True or result == {}
+    deleted = _is_success(result)
     output = {'Deleted': deleted}
-    readable = f'Task `{task_id}` {"deleted successfully" if deleted else "could not be deleted"}.'
+    readable = _readable_bool_result(f'Task `{task_id}` deletion', result)
     return CommandResults(
         outputs_prefix='Bitdefender.Task',
         outputs=output,
@@ -395,9 +404,9 @@ def bd_incident_note_update_command(client: GravityZoneClient, args: dict) -> Co
     incident_id = args['incident_id']
     note = args['note']
     result = client.update_incident_note(incident_type, incident_id, note)
-    updated = result is True or result == {}
+    updated = _is_success(result)
     output = {'NoteUpdated': updated}
-    readable = f'Note for incident `{incident_id}` {"updated successfully" if updated else "could not be updated"}.'
+    readable = _readable_bool_result(f'Note update for incident `{incident_id}`', result)
     return CommandResults(
         outputs_prefix='Bitdefender.Incident',
         outputs=output,
@@ -411,9 +420,9 @@ def bd_incident_status_change_command(client: GravityZoneClient, args: dict) -> 
     incident_id = args['incident_id']
     status = arg_to_number(args['status'])
     result = client.change_incident_status(incident_type, incident_id, status)
-    changed = result is True or result == {}
+    changed = _is_success(result)
     output = {'StatusChanged': changed}
-    readable = f'Status of incident `{incident_id}` {"changed successfully" if changed else "could not be changed"}.'
+    readable = _readable_bool_result(f'Status change for incident `{incident_id}`', result)
     return CommandResults(
         outputs_prefix='Bitdefender.Incident',
         outputs=output,
@@ -431,9 +440,9 @@ def bd_blocklist_add_command(client: GravityZoneClient, args: dict) -> CommandRe
         path_value=args.get('path_value'),
         note=args.get('note'),
     )
-    added = result is True or result == {}
+    added = _is_success(result)
     output = {'Added': added}
-    readable = f'Blocklist rule `{rule_type}` {"added successfully" if added else "could not be added"}.'
+    readable = _readable_bool_result(f'Blocklist rule `{rule_type}` addition', result)
     return CommandResults(
         outputs_prefix='Bitdefender.Blocklist',
         outputs=output,
@@ -468,9 +477,9 @@ def bd_blocklist_get_command(client: GravityZoneClient, args: dict) -> CommandRe
 def bd_blocklist_remove_command(client: GravityZoneClient, args: dict) -> CommandResults:
     item_ids = argToList(args['item_ids'])
     result = client.remove_from_blocklist(item_ids)
-    removed = result is True or result == {}
+    removed = _is_success(result)
     output = {'Removed': removed}
-    readable = f'{len(item_ids)} blocklist item(s) {"removed successfully" if removed else "could not be removed"}.'
+    readable = _readable_bool_result(f'{len(item_ids)} blocklist item(s) removal', result)
     return CommandResults(
         outputs_prefix='Bitdefender.Blocklist',
         outputs=output,
@@ -631,9 +640,9 @@ def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> Comma
         require_valid_ssl=require_ssl,
         subscribe_all=subscribe_all,
     ))
-    updated = result is True or result == {}
+    updated = _is_success(result)
     output = {'Updated': updated}
-    readable = f'Push notification settings {"updated successfully" if updated else "could not be updated"}.'
+    readable = _readable_bool_result('Push notification settings update', result)
     return CommandResults(
         outputs_prefix='Bitdefender.PushSettings',
         outputs=output,
@@ -645,12 +654,8 @@ def bd_push_settings_set_command(client: GravityZoneClient, args: dict) -> Comma
 def bd_push_test_command(client: GravityZoneClient, args: dict) -> CommandResults:
     event_type = args['event_type']
     result = _wrap_push_call(lambda: client.send_test_push(event_type))
-    success = result is True or result is None or result == {} or result == 'true'
-    if success:
-        readable = f'Test push event `{event_type}` sent successfully.'
-    else:
-        detail = result if result else 'no detail returned'
-        readable = f'Test push event `{event_type}` failed.\n\nResponse: {detail}'
+    success = _is_success(result)
+    readable = _readable_bool_result(f'Test push event `{event_type}`', result)
     output = {'Success': success, 'Detail': result}
     return CommandResults(
         outputs_prefix='Bitdefender.PushTest',
