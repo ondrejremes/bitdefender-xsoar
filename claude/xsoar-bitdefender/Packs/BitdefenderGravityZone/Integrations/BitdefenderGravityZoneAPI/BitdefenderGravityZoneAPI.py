@@ -2,7 +2,7 @@ import demistomock as demisto
 from CommonServerPython import *
 import uuid
 
-API_VERSION = 'v1.1'
+API_VERSION = 'v1.0'
 
 ALL_EVENT_TYPES = [
     'av', 'avc', 'hd', 'aph', 'fw', 'dp', 'uc',
@@ -62,7 +62,7 @@ class GravityZoneClient(BaseClient):
             params['isManaged'] = is_managed
         if name_filter:
             params['filters'] = {'name': name_filter}
-        return self._call('network', 'getEndpointsList', params)
+        return self._call('network', 'getEndpointsList', params, api_version='v1.1')
 
     def get_endpoint_details(self, endpoint_id: str):
         return self._call('network', 'getManagedEndpointDetails', {'endpointId': endpoint_id})
@@ -153,7 +153,7 @@ class GravityZoneClient(BaseClient):
     # ── Push notifications ───────────────────────────────────────────────────
 
     def get_push_settings(self):
-        return self._call('push', 'getPushEventSettings', {}, api_version='v1.0')
+        return self._call('push', 'getPushEventSettings', {})
 
     def set_push_settings(self, status: int, service_type: str, url: str,
                           authorization=None, require_valid_ssl=None, subscribe_all=False):
@@ -171,10 +171,10 @@ class GravityZoneClient(BaseClient):
             params['subscribeToEventTypes'] = {t: True for t in ALL_EVENT_TYPES}
         if self.company_id:
             params['subscribeToCompanies'] = [self.company_id]
-        return self._call('push', 'setPushEventSettings', params, api_version='v1.0')
+        return self._call('push', 'setPushEventSettings', params)
 
     def send_test_push(self, event_type: str):
-        return self._call('push', 'sendTestPushEvent', {'eventType': event_type}, api_version='v1.0')
+        return self._call('push', 'sendTestPushEvent', {'eventType': event_type})
 
 
 # ── Command implementations ──────────────────────────────────────────────────

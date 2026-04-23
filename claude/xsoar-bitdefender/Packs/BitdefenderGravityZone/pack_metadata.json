@@ -2,7 +2,7 @@
   "name": "Bitdefender GravityZone",
   "description": "Integrates with Bitdefender GravityZone Public API for endpoint management, incident response and security event ingestion via push notifications.",
   "support": "community",
-  "currentVersion": "1.0.17",
+  "currentVersion": "1.0.18",
   "author": "Ondrej Remes",
   "url": "",
   "email": "",
