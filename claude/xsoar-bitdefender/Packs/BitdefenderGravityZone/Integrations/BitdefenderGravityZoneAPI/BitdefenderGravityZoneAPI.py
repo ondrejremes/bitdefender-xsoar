@@ -36,14 +36,14 @@ class GravityZoneClient(BaseClient):
             params['companyId'] = self.company_id
         return params
 
-    def _call(self, namespace: str, method: str, params: dict | None = None) -> Any:
+    def _call(self, namespace: str, method: str, params: dict | None = None, api_version: str = API_VERSION) -> Any:
         payload = {
             'jsonrpc': '2.0',
             'method': method,
             'id': str(uuid.uuid4()),
             'params': params or {},
         }
-        response = self._http_request('POST', f'/api/{API_VERSION}/jsonrpc/{namespace}', json_data=payload)
+        response = self._http_request('POST', f'/api/{api_version}/jsonrpc/{namespace}', json_data=payload)
         if 'error' in response:
             err = response['error']
             msg = err.get('message', str(err))
@@ -153,7 +153,7 @@ class GravityZoneClient(BaseClient):
     # ── Push notifications ───────────────────────────────────────────────────
 
     def get_push_settings(self):
-        return self._call('push', 'getPushEventSettings', {})
+        return self._call('push', 'getPushEventSettings', {}, api_version='v1.0')
 
     def set_push_settings(self, status: int, service_type: str, url: str,
                           authorization=None, require_valid_ssl=None, subscribe_all=False):
@@ -171,10 +171,10 @@ class GravityZoneClient(BaseClient):
             params['subscribeToEventTypes'] = {t: True for t in ALL_EVENT_TYPES}
         if self.company_id:
             params['subscribeToCompanies'] = [self.company_id]
-        return self._call('push', 'setPushEventSettings', params)
+        return self._call('push', 'setPushEventSettings', params, api_version='v1.0')
 
     def send_test_push(self, event_type: str):
-        return self._call('push', 'sendTestPushEvent', {'eventType': event_type})
+        return self._call('push', 'sendTestPushEvent', {'eventType': event_type}, api_version='v1.0')
 
 
 # ── Command implementations ──────────────────────────────────────────────────
