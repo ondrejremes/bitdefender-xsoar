@@ -6,7 +6,7 @@
   "version": -1,
   "fromVersion": "6.0.0",
   "transformer": {
-    "simple": "module"
+    "simple": "params.events.[0].module"
   },
   "keyTypeMap": {
     "av":                    "Bitdefender GravityZone Malware",

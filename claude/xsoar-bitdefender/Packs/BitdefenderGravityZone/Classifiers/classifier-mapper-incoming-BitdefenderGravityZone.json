@@ -9,37 +9,197 @@
     "Bitdefender GravityZone Malware": {
       "dontMapEventToLabels": true,
       "internalMapping": {
-        "name":                             {"simple": "malware_name"},
-        "occurred":                         {"simple": "timestamp"},
-        "severity": {
+        "name": {
           "complex": {
-            "root": "detection_level",
+            "root": "params.events",
+            "accessor": "malware_name",
             "filters": [],
-            "transformers": [{"operator": "MapValuesToTable", "args": {
-              "table": {"value": {"simple": "Aggressive:3,Normal:2,Permissive:1"}, "isContext": false}
-            }}]
+            "transformers": [{"operator": "Stringify"}]
           }
         },
-        "GravityZone Module":               {"simple": "module"},
-        "GravityZone Company ID":           {"simple": "companyId"},
-        "GravityZone Computer ID":          {"simple": "computer_id"},
-        "GravityZone Computer Name":        {"simple": "computer_name"},
-        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
-        "GravityZone Computer IP":          {"simple": "computer_ip"},
-        "GravityZone Product Installed":    {"simple": "product_installed"},
-        "GravityZone Malware Name":         {"simple": "malware_name"},
-        "GravityZone Malware Type":         {"simple": "malware_type"},
-        "GravityZone File Path":            {"simple": "file_path"},
-        "GravityZone SHA256":               {"simple": "hash"},
-        "GravityZone Detection Level":      {"simple": "detection_level"},
-        "GravityZone Infection Status":     {"simple": "final_status"},
-        "GravityZone Action Taken":         {"simple": "main_action"},
-        "GravityZone Attack Types":         {"simple": "attack_types"},
-        "GravityZone Process Path":         {"simple": "process_path"},
-        "GravityZone Parent Process Path":  {"simple": "parent_process_path"},
-        "GravityZone Exploit Technique":    {"simple": "exploit_type"},
-        "GravityZone Source IP":            {"simple": "attack_source"},
-        "GravityZone MITRE ATT&CK":         {"simple": "att_ck_id"}
+        "occurred": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "timestamp",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "severity": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_level",
+            "filters": [],
+            "transformers": [
+              {"operator": "MapValuesToTable", "args": {
+                "table": {"value": {"simple": "Aggressive:3,Normal:2,Permissive:1"}, "isContext": false}
+              }},
+              {"operator": "SetIfEmpty", "args": {
+                "applyIfEmpty": {"value": {"simple": "1"}, "isContext": false}
+              }}
+            ]
+          }
+        },
+        "GravityZone Module": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Company ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "companyId",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer FQDN": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_fqdn",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_ip",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Product Installed": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "product_installed",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Malware Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "malware_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Malware Type": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "malware_type",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone File Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "file_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone SHA256": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "hash",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Detection Level": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_level",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Infection Status": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "final_status",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Action Taken": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "final_status",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Attack Types": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "attack_types",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Process Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "process_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Parent Process Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "parent_process_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Exploit Technique": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "exploit_type",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Source IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "attack_source",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone MITRE ATT&CK": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "att_ck_id",
+            "filters": [],
+            "transformers": []
+          }
+        }
       }
     },
     "Bitdefender GravityZone Exchange Malware": {
@@ -47,137 +207,652 @@
       "internalMapping": {
         "name": {
           "complex": {
-            "root": "malware",
-            "accessor": "0.malwareName",
+            "root": "params.events",
+            "accessor": "malware.0.malwareName",
             "filters": [],
-            "transformers": []
+            "transformers": [{"operator": "Stringify"}]
           }
         },
-        "occurred":                         {"simple": "detectionTime"},
-        "GravityZone Module":               {"simple": "module"},
-        "GravityZone Company ID":           {"simple": "companyId"},
-        "GravityZone Computer ID":          {"simple": "computer_id"},
-        "GravityZone Computer Name":        {"simple": "serverName"},
-        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
-        "GravityZone Computer IP":          {"simple": "computer_ip"},
-        "GravityZone Product Installed":    {"simple": "product_installed"},
+        "occurred": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detectionTime",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Module": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Company ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "companyId",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "serverName",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer FQDN": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_fqdn",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_ip",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Product Installed": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "product_installed",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
         "GravityZone Malware Name": {
           "complex": {
-            "root": "malware",
-            "accessor": "0.malwareName",
+            "root": "params.events",
+            "accessor": "malware.0.malwareName",
             "filters": [],
-            "transformers": []
+            "transformers": [{"operator": "Stringify"}]
           }
         },
         "GravityZone Malware Type": {
           "complex": {
-            "root": "malware",
-            "accessor": "0.malwareType",
+            "root": "params.events",
+            "accessor": "malware.0.malwareType",
             "filters": [],
-            "transformers": []
+            "transformers": [{"operator": "Stringify"}]
           }
         },
         "GravityZone Action Taken": {
           "complex": {
-            "root": "malware",
-            "accessor": "0.actionTaken",
+            "root": "params.events",
+            "accessor": "malware.0.actionTaken",
             "filters": [],
-            "transformers": []
+            "transformers": [{"operator": "Stringify"}]
           }
         },
         "GravityZone File Path": {
           "complex": {
-            "root": "malware",
-            "accessor": "0.infectedObject",
+            "root": "params.events",
+            "accessor": "malware.0.infectedObject",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Email Sender": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "sender",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Email Recipients": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "recipients",
             "filters": [],
             "transformers": []
           }
         },
-        "GravityZone Email Sender":         {"simple": "sender"},
-        "GravityZone Email Recipients":     {"simple": "recipients"},
-        "GravityZone Email Subject":        {"simple": "subject"}
+        "GravityZone Email Subject": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "subject",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        }
       }
     },
     "Bitdefender GravityZone EDR Incident": {
       "dontMapEventToLabels": true,
       "internalMapping": {
-        "name":                             {"simple": "detection_name"},
-        "occurred":                         {"simple": "created"},
-        "severity":                         {"simple": "severity"},
-        "dbotMirrorId":                     {"simple": "incident_id"},
-        "GravityZone Module":               {"simple": "module"},
-        "GravityZone Company ID":           {"simple": "companyId"},
-        "GravityZone Computer ID":          {"simple": "computer_id"},
-        "GravityZone Computer Name":        {"simple": "computer_name"},
-        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
-        "GravityZone Computer IP":          {"simple": "computer_ip"},
-        "GravityZone Incident ID":          {"simple": "incident_id"},
-        "GravityZone Incident Type":        {"simple": "module"},
-        "GravityZone Severity Score":       {"simple": "severityScore"},
-        "GravityZone Incident Link":        {"simple": "incident_url"},
-        "GravityZone Malware Name":         {"simple": "detection_name"},
-        "GravityZone Attack Types":         {"simple": "attack_types"},
-        "GravityZone Process Path":         {"simple": "process_path"},
-        "GravityZone Parent Process Path":  {"simple": "parent_process_path"},
-        "GravityZone SHA256":               {"simple": "file_hash_sha256"},
-        "GravityZone MITRE ATT&CK":         {"simple": "att_ck_id"}
+        "name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "occurred": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "created",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "severity": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "severity",
+            "filters": [],
+            "transformers": [{"operator": "MapValuesToTable", "args": {
+              "table": {"value": {"simple": "low:1,medium:2,high:3,critical:4"}, "isContext": false}
+            }}]
+          }
+        },
+        "dbotMirrorId": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "incident_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Module": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Company ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "companyId",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer FQDN": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_fqdn",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_ip",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Incident ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "incident_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Incident Type": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Severity Score": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "severity_score",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Incident Link": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "incident_url",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Malware Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Attack Types": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "attack_types",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Process Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "process_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Parent Process Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "parent_process_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone SHA256": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "file_hash_sha256",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone MITRE ATT&CK": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "att_ck_id",
+            "filters": [],
+            "transformers": []
+          }
+        }
       }
     },
     "Bitdefender GravityZone XDR Incident": {
       "dontMapEventToLabels": true,
       "internalMapping": {
-        "name":                             {"simple": "detection_name"},
-        "occurred":                         {"simple": "created"},
-        "severity":                         {"simple": "severity"},
-        "dbotMirrorId":                     {"simple": "incident_id"},
-        "GravityZone Module":               {"simple": "module"},
-        "GravityZone Company ID":           {"simple": "companyId"},
-        "GravityZone Incident ID":          {"simple": "incident_id"},
-        "GravityZone Incident Type":        {"simple": "module"},
-        "GravityZone Severity Score":       {"simple": "severityScore"},
-        "GravityZone Incident Link":        {"simple": "incident_url"},
-        "GravityZone Malware Name":         {"simple": "detection_name"},
-        "GravityZone Attack Types":         {"simple": "attack_types"},
-        "GravityZone Process Path":         {"simple": "process_path"},
-        "GravityZone Parent Process Path":  {"simple": "parent_process_path"},
-        "GravityZone SHA256":               {"simple": "file_hash_sha256"},
-        "GravityZone MITRE ATT&CK":         {"simple": "att_ck_id"}
+        "name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "occurred": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "created",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "severity": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "severity",
+            "filters": [],
+            "transformers": [{"operator": "MapValuesToTable", "args": {
+              "table": {"value": {"simple": "low:1,medium:2,high:3,critical:4"}, "isContext": false}
+            }}]
+          }
+        },
+        "dbotMirrorId": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "incident_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Module": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Company ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "companyId",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Incident ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "incident_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Incident Type": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Severity Score": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "severity_score",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Incident Link": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "incident_url",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Malware Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Attack Types": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "attack_types",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Process Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "process_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Parent Process Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "parent_process_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone SHA256": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "file_hash_sha256",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone MITRE ATT&CK": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "att_ck_id",
+            "filters": [],
+            "transformers": []
+          }
+        }
       }
     },
     "Bitdefender GravityZone Network Event": {
       "dontMapEventToLabels": true,
       "internalMapping": {
-        "name":                             {"simple": "module"},
-        "occurred":                         {"simple": "last_blocked"},
-        "GravityZone Module":               {"simple": "module"},
-        "GravityZone Company ID":           {"simple": "companyId"},
-        "GravityZone Computer ID":          {"simple": "computer_id"},
-        "GravityZone Computer Name":        {"simple": "computer_name"},
-        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
-        "GravityZone Computer IP":          {"simple": "computer_ip"},
-        "GravityZone Product Installed":    {"simple": "product_installed"},
-        "GravityZone URL":                  {"simple": "url"},
-        "GravityZone APH Type":             {"simple": "aph_type"},
-        "GravityZone Infection Status":     {"simple": "status"},
-        "GravityZone Application Path":     {"simple": "application_path"},
-        "GravityZone Source IP":            {"simple": "source_ip"},
-        "GravityZone Local Port":           {"simple": "local_port"},
-        "GravityZone Protocol":             {"simple": "protocol_id"},
-        "GravityZone Malware Name":         {"simple": "detection_threatName"}
+        "name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "occurred": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "last_blocked",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Module": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Company ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "companyId",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer FQDN": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_fqdn",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_ip",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Product Installed": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "product_installed",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone URL": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "url",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone APH Type": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "aph_type",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Infection Status": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "status",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Application Path": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "application_path",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Source IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "source_ip",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Local Port": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "local_port",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Protocol": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "protocol_id",
+            "filters": [],
+            "transformers": []
+          }
+        },
+        "GravityZone Malware Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "detection_threatName",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        }
       }
     },
     "Bitdefender GravityZone System Event": {
       "dontMapEventToLabels": true,
       "internalMapping": {
-        "name":                             {"simple": "module"},
-        "occurred":                         {"simple": "timestamp"},
-        "GravityZone Module":               {"simple": "module"},
-        "GravityZone Company ID":           {"simple": "companyId"},
-        "GravityZone Computer ID":          {"simple": "computer_id"},
-        "GravityZone Computer Name":        {"simple": "computer_name"},
-        "GravityZone Computer FQDN":        {"simple": "computer_fqdn"},
-        "GravityZone Computer IP":          {"simple": "computer_ip"},
-        "GravityZone Product Installed":    {"simple": "product_installed"}
+        "name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "occurred": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "timestamp",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Module": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "module",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Company ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "companyId",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer ID": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_id",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer Name": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_name",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer FQDN": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_fqdn",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Computer IP": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "computer_ip",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        },
+        "GravityZone Product Installed": {
+          "complex": {
+            "root": "params.events",
+            "accessor": "product_installed",
+            "filters": [],
+            "transformers": [{"operator": "Stringify"}]
+          }
+        }
       }
     },
     "dbot_classification_incident_type_all": {
